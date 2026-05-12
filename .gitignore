@@ -1,3 +1,11 @@
+# Build output
+build/
+bin/
+
+# Text files
+*.txt
+!CMakeLists.txt
+
 # Prerequisites
 *.d
 
