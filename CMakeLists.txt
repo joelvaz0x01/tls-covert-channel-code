@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(fountain-code-demo C)
+project(tls-client-random-fountain-code C)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
@@ -62,7 +62,7 @@ endforeach()
 
 # implementation tests
 enable_testing()
-add_executable(fountain_test test/fountain-code/test_fountain.c)
+add_executable(fountain_test test/fountain_code/test_fountain.c)
 set_target_properties(fountain_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
 target_link_libraries(fountain_test PRIVATE fountain_code_lib)
 target_compile_options(fountain_test PRIVATE -Wall -Wextra -Wpedantic)
