@@ -1,0 +1,23 @@
+BasedOnStyle: Google
+IndentWidth: 2
+ContinuationIndentWidth: 2
+ColumnLimit: 0
+UseTab: Never
+AllowShortBlocksOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+IndentCaseLabels: true
+AlignAfterOpenBracket: BlockIndent
+Cpp11BracedListStyle: true
+BinPackArguments: false
+BinPackParameters: false
+AlignConsecutiveMacros: AcrossEmptyLinesAndComments
+AlignTrailingComments: true
+IncludeBlocks: Regroup
+IncludeIsMainRegex: "$."
+IncludeCategories:
+  - Regex: "^<(cbprng|fountain_code|hash|rand|utils)/"
+    Priority: 2
+  - Regex: "^<.*"
+    Priority: 1
+  - Regex: '^".*'
+    Priority: 3
