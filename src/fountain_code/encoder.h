@@ -1,12 +1,12 @@
-/**
- * @file encoder.h
- * @brief Header file for the encoder interface for fountain code.
+/*
+ * Copyright 2026 Joel Vaz. All rights reserved.
+ * Licensed under the Apache License 2.0
  */
 
 #ifndef FOUNTAIN_CODE_ENCODER_H
 #define FOUNTAIN_CODE_ENCODER_H
 
-#include <fountain_code/fountain_code.h>
+#include "settings.h"
 
 /**
  * Encoder: produce one fountain-code packet.
@@ -22,6 +22,6 @@
  * @param nw Number of words in the selector vector.
  * @return The encoded packet.
  */
-packet_t encode_packet(int id, const unsigned char *blocks, int n, int m, int n_words);
+packet_t encode_packet(int id, const block_t* blocks, int n, int m, int n_words);
 
 #endif /* FOUNTAIN_CODE_ENCODER_H */

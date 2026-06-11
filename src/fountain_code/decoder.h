@@ -1,12 +1,12 @@
-/**
- * @file decoder.h
- * @brief Header file for the decoder interface for Gaussian elimination over GF(2).
+/*
+ * Copyright 2026 Joel Vaz. All rights reserved.
+ * Licensed under the Apache License 2.0
  */
 
 #ifndef FOUNTAIN_CODE_DECODER_H
 #define FOUNTAIN_CODE_DECODER_H
 
-#include <fountain_code/fountain_code.h>
+#include "settings.h"
 
 /**
  * @struct decoder_t
@@ -20,11 +20,12 @@
  * @var pivot_data Pivot data for each block.
  */
 typedef struct {
-  int           n, n_words;
-  int           remaining;
-  int           pivot_present[MAX_BLOCKS];
-  vec_t         pivot_sel  [MAX_BLOCKS];
-  unsigned char pivot_data [MAX_BLOCKS][BLOCK_SIZE];
+  int n;
+  int n_words;
+  int remaining;
+  int pivot_present[MAX_BLOCKS];
+  vec_t pivot_sel[MAX_BLOCKS];
+  block_t pivot_data[MAX_BLOCKS];
 } decoder_t;
 
 /**
@@ -33,7 +34,7 @@ typedef struct {
  * @param dec Pointer to the decoder structure to initialize.
  * @param n Number of source blocks.
  */
-void decoder_init(decoder_t *dec, int n);
+void decoder_init(decoder_t* dec, int n);
 
 /**
  * Feeds a packet to the decoder.
@@ -42,7 +43,7 @@ void decoder_init(decoder_t *dec, int n);
  * @param pkt Pointer to the packet to feed.
  * @return 1 if the packet added a new pivot (useful equation), 0 if it was linearly dependent (redundant).
  */
-int decoder_feed(decoder_t *dec, const packet_t *pkt);
+int decoder_feed(decoder_t* dec, const packet_t* pkt);
 
 /**
  * Decoder: solve the decoder by back-substitution.
@@ -55,6 +56,6 @@ int decoder_feed(decoder_t *dec, const packet_t *pkt);
  * @param dec Pointer to the decoder structure.
  * @param out_blocks Pointer to the output buffer where decoded blocks will be copied.
  */
-void decoder_solve(decoder_t *dec, unsigned char *out_blocks);
+void decoder_solve(decoder_t* dec, block_t* out_blocks);
 
 #endif /* FOUNTAIN_CODE_DECODER_H */
