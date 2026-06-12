@@ -139,9 +139,6 @@ add_test(
   COMMAND ${CMAKE_BINARY_DIR}/tests/fountain_test
 )
 
-
-)
-
 add_custom_command(
   TARGET cbprng_test POST_BUILD
   COMMAND ${CMAKE_BINARY_DIR}/tests/cbprng_test
