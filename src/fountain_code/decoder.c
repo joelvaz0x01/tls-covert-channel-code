@@ -8,46 +8,6 @@
 #include "decoder.h"
 #include "utils.h"
 
-static void vec_xor(vec_t* dst, const vec_t* src, int n_words) {
-  for (int i = 0; i < n_words; i++) dst->w[i] ^= src->w[i];
-}
-
-static int vec_lsb(const vec_t* v, int n_words) {
-  for (int i = 0; i < n_words; i++) {
-    if (0 != v->w[i]) {
-      return 64 * i + ctz64(v->w[i]);
-    }
-  }
-  return -1;
-}
-
-void decoder_init(decoder_t* dec, int n) {
-  memset(dec, 0, sizeof(*dec));
-  dec->n = n;
-  dec->n_words = (n + 63) / 64;
-  dec->remaining = n;
-}
-
-int decoder_feed(decoder_t* dec, const packet_t* pkt) {
-  vec_t sel = pkt->selector;
-  block_t dat = pkt->data;
-
-  for (;;) {
-    int i = vec_lsb(&sel, dec->n_words);
-    if (i < 0) return 0;
-
-    if (!dec->pivot_present[i]) {
-      dec->pivot_present[i] = 1;
-      dec->pivot_sel[i] = sel;
-      dec->pivot_data[i] = dat;
-      dec->remaining--;
-      return 1;
-    }
-    vec_xor(&sel, &dec->pivot_sel[i], dec->n_words);
-    data_xor(&dat, &dec->pivot_data[i]);
-  }
-}
-
 void decoder_solve(decoder_t* dec, block_t* out_blocks) {
   int n = dec->n;
   int nw = dec->n_words;

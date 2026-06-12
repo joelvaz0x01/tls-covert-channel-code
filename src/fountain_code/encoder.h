@@ -6,7 +6,7 @@
 #ifndef FOUNTAIN_CODE_ENCODER_H
 #define FOUNTAIN_CODE_ENCODER_H
 
-#include "settings.h"
+#include "utils.h"
 
 /**
  * Encoder: produce one fountain-code packet.
@@ -23,5 +23,14 @@
  * @return The encoded packet.
  */
 packet_t encode_packet(int id, const block_t* blocks, int n, int m, int n_words);
+
+/**
+ * Feeds a packet to the decoder.
+ *
+ * @param dec Pointer to the decoder structure.
+ * @param pkt Pointer to the packet to feed.
+ * @return 1 if the packet added a new pivot (useful equation), 0 if it was linearly dependent (redundant).
+ */
+int decoder_feed(decoder_t* dec, const packet_t* pkt);
 
 #endif /* FOUNTAIN_CODE_ENCODER_H */

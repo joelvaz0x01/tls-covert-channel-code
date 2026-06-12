@@ -6,44 +6,7 @@
 #ifndef FOUNTAIN_CODE_DECODER_H
 #define FOUNTAIN_CODE_DECODER_H
 
-#include "settings.h"
-
-/**
- * @struct decoder_t
- * Represents the decoder state for Gaussian elimination over GF(2).
- *
- * @var n Number of source blocks.
- * @var n_words Number of word-sized selector vectors.
- * @var remaining Number of blocks still needed.
- * @var pivot_present Whether each block has a pivot.
- * @var pivot_sel Pivot selector for each block.
- * @var pivot_data Pivot data for each block.
- */
-typedef struct {
-  int n;
-  int n_words;
-  int remaining;
-  int pivot_present[MAX_BLOCKS];
-  vec_t pivot_sel[MAX_BLOCKS];
-  block_t pivot_data[MAX_BLOCKS];
-} decoder_t;
-
-/**
- * Initializes the decoder.
- *
- * @param dec Pointer to the decoder structure to initialize.
- * @param n Number of source blocks.
- */
-void decoder_init(decoder_t* dec, int n);
-
-/**
- * Feeds a packet to the decoder.
- *
- * @param dec Pointer to the decoder structure.
- * @param pkt Pointer to the packet to feed.
- * @return 1 if the packet added a new pivot (useful equation), 0 if it was linearly dependent (redundant).
- */
-int decoder_feed(decoder_t* dec, const packet_t* pkt);
+#include "utils.h"
 
 /**
  * Decoder: solve the decoder by back-substitution.

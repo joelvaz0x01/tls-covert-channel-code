@@ -32,6 +32,60 @@ static inline int ctz64(uint64_t value) {
 }
 
 /**
+ * @struct vec_t
+ * Represents a vector used in Gaussian elimination over GF(2).
+ *
+ * @var w Array of word-sized selector vectors.
+ */
+typedef struct {
+  uint64_t w[VEC_WORDS];
+} vec_t;
+
+/**
+ * @struct block_t
+ * Represents a source block or encoded data block.
+ *
+ * @var w Array of word-sized data.
+ */
+typedef struct {
+  uint64_t w[BLOCK_WORDS];
+} block_t;
+
+/**
+ * @struct packet_t
+ * Represents a fountain-code packet.
+ *
+ * @var id Packet ID.
+ * @var selector Selector vector indicating which source blocks are included.
+ * @var data Packet data (XOR of selected source blocks).
+ */
+typedef struct {
+  int id;
+  vec_t selector;
+  block_t data;
+} packet_t;
+
+/**
+ * @struct decoder_t
+ * Represents the decoder state for Gaussian elimination over GF(2).
+ *
+ * @var n Number of source blocks.
+ * @var n_words Number of word-sized selector vectors.
+ * @var remaining Number of blocks still needed.
+ * @var pivot_present Whether each block has a pivot.
+ * @var pivot_sel Pivot selector for each block.
+ * @var pivot_data Pivot data for each block.
+ */
+typedef struct {
+  int n;
+  int n_words;
+  int remaining;
+  int pivot_present[MAX_BLOCKS];
+  vec_t pivot_sel[MAX_BLOCKS];
+  block_t pivot_data[MAX_BLOCKS];
+} decoder_t;
+
+/**
  * Tests the given bit in the vector.
  *
  * @param v Pointer to the vector.
@@ -47,5 +101,22 @@ int vec_test(const vec_t* v, int bit);
  * @param src Pointer to the source block.
  */
 void data_xor(block_t* dst, const block_t* src);
+
+/**
+ * Performs XOR operation on two vectors of n_words words.
+ *
+ * @param dst Pointer to the destination vector.
+ * @param src Pointer to the source vector.
+ * @param n_words Number of words to XOR.
+ */
+void vec_xor(vec_t* dst, const vec_t* src, int n_words);
+
+/**
+ * Initializes the decoder.
+ *
+ * @param dec Pointer to the decoder structure to initialize.
+ * @param n Number of source blocks.
+ */
+void decoder_init(decoder_t* dec, int n);
 
 #endif /* FOUNTAIN_CODE_UTILS_H */
