@@ -11,6 +11,8 @@
 #include <cbprng/settings.h>
 #include <rand/rand.h>
 
+#define MAX_TEST_BITS 24
+
 typedef struct {
   int* S;  // S-boxes: [layer][sbox][index]
   int* P;  // P-boxes: [layer][bit]
@@ -18,34 +20,6 @@ typedef struct {
   int layers;
   int sbox_bits;
 } dynamic_gen_t;
-
-mask_t dynamic_generate(dynamic_gen_t* g, mask_t counter) {
-  mask_t bits = counter;
-  mask_t sbox_mask = (1ULL << g->sbox_bits) - 1;
-  int n_sboxes = g->bits / g->sbox_bits;
-
-  for (int l = 0; l < g->layers; l++) {
-    mask_t next = 0;
-    // S-Box Layer
-    for (int s = 0; s < n_sboxes; s++) {
-      int input = (bits >> (s * g->sbox_bits)) & sbox_mask;
-      int output = g->S[l * n_sboxes * (1 << g->sbox_bits) + s * (1 << g->sbox_bits) + input];
-      next |= (mask_t)output << (s * g->sbox_bits);
-    }
-
-    if (l < g->layers - 1) {
-      bits = 0;
-      // P-Box Layer
-      for (int b = 0; b < g->bits; b++) {
-        int target_bit = g->P[l * g->bits + b];
-        bits |= ((next >> b) & 1ULL) << target_bit;
-      }
-    } else {
-      bits = next;
-    }
-  }
-  return bits;
-}
 
 void free_dynamic_gen(dynamic_gen_t* g) {
   free(g->S);
@@ -62,7 +36,7 @@ void init_dynamic_gen(dynamic_gen_t* g, int bits) {
   g->S = malloc(g->layers * n_sboxes * sbox_size * sizeof(int));
   g->P = malloc((g->layers - 1) * bits * sizeof(int));
 
-  // Fill with random permutations (simplified for test purposes)
+  /* fill S-Box with random permutations */
   for (int l = 0; l < g->layers; l++) {
     for (int s = 0; s < n_sboxes; s++) {
       int* box = &g->S[l * n_sboxes * sbox_size + s * sbox_size];
@@ -75,6 +49,8 @@ void init_dynamic_gen(dynamic_gen_t* g, int bits) {
       }
     }
   }
+
+  /* fill P-Box with random permutations */
   for (int l = 0; l < g->layers - 1; l++) {
     int* box = &g->P[l * bits];
     for (int i = 0; i < bits; i++) box[i] = i;
@@ -91,7 +67,8 @@ int test_repetition(int bits) {
   uint64_t total = 1ULL << bits;
   char buffer[128];
 
-  snprintf(buffer, sizeof(buffer), "Finding duplicates in %2d-bit CBPRNG (%llu values)...", bits, (unsigned long long)total);
+  snprintf(buffer, sizeof(buffer), "Finding duplicates in %2d-bit CBPRNG (%llu values)...", bits,
+           (unsigned long long)total);
   printf("%-57s", buffer);
   fflush(stdout);
 
@@ -100,15 +77,28 @@ int test_repetition(int bits) {
 
   uint8_t* seen = calloc(total, 1);
   if (!seen) {
-    printf(" [Memory Fail]\n");
+    printf(" [Memory Fail]\n\n");
     free_dynamic_gen(&g);
     return 0;
   }
 
+  uint64_t step = total / 100;
+  if (step == 0) step = 1;
+
   for (uint64_t i = 0; i < total; i++) {
-    mask_t val = dynamic_generate(&g, (mask_t)i);
-    if (val >= total || seen[val]) {
-      printf("[FAIL] Duplicated value or out of range!\n");
+    if (i % step == 0) {
+      printf("\r%-59s [%3" PRIu64 "%%]", buffer, (i * 100) / total);
+      fflush(stdout);
+    }
+    mask_t val = generate_cbprng_generic(g.S, g.P, (mask_t)i, g.bits, g.layers, g.sbox_bits);
+    if (val >= total) {
+      printf("\r%-59s [FAIL] Out of range!\n\n", buffer);
+      free(seen);
+      free_dynamic_gen(&g);
+      return 0;
+    }
+    if (seen[val]) {
+      printf("\r%-59s [FAIL] Duplicated value!\n\n", buffer);
       free(seen);
       free_dynamic_gen(&g);
       return 0;
@@ -116,7 +106,7 @@ int test_repetition(int bits) {
     seen[val] = 1;
   }
 
-  printf("[OK]\n");
+  printf("\r%-59s [OK]     \n", buffer);
   free(seen);
   free_dynamic_gen(&g);
   return 1;
@@ -125,22 +115,26 @@ int test_repetition(int bits) {
 int main(void) {
   seed_prng();
   printf("\nCBPRNG Exhaustive Duplicate Finder\n");
-  printf("---------------------------------------------------------------\n");
+  printf("-------------------------------------------------------------------------------------\n");
 
-  int max_test_bits = (CBPRNG_BITS > 24) ? 24 : CBPRNG_BITS;
+  int max_test_bits = (CBPRNG_BITS > MAX_TEST_BITS) ? MAX_TEST_BITS : CBPRNG_BITS;
   int b;
 
   for (b = S_BOX_BITS; b <= max_test_bits; b += S_BOX_BITS) {
-    if (!test_repetition(b)) return 1;
+    if (!test_repetition(b)){
+      printf("-------------------------------------------------------------------------------------\n");
+      printf("Some repetition found at %d-bit CBPRNG\n\n", b);
+      return 1;
+    }
   }
 
   printf("\nNo repetitions found from %d-bit to %d-bit permutations.\n", S_BOX_BITS, max_test_bits);
 
-  if (CBPRNG_BITS > 24) {
+  if (CBPRNG_BITS > MAX_TEST_BITS) {
     printf("[INFO] Tests from %d-bit till %d-bit CBPRNG skipped.\n", b, CBPRNG_BITS);
   }
 
-  printf("---------------------------------------------------------------\n");
+  printf("-------------------------------------------------------------------------------------\n");
   printf("All tests passed successfully!\n\n");
   return 0;
 }
