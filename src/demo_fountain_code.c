@@ -102,7 +102,8 @@ int main(void) {
   file_bits = original_file_bits;
 
   /* compute packet degree m */
-  int m = (int)round(2.0 * log((double)n) + EULER);
+  double alpha = 2.5;
+  int m = (int)round(alpha * log((double)n) + EULER);
   if (m < 1) m = 1;
   if (m >= n) m = n - 1;
 
@@ -112,7 +113,7 @@ int main(void) {
   printf("======================================================================\n");
   printf(" Input file    : %s (%ld bits)\n", input_file, file_bits);
   printf(" Source blocks : n = %d blocks (each with %d bits)\n", n, FC_BLOCK_SIZE);
-  printf(" Degree        : m = round(2 * ln(%d) + Euler-Mascheroni)\n", n);
+  printf(" Degree        : m = round(%.1f * ln(%d) + Euler-Mascheroni)\n", alpha, n);
   printf("======================================================================\n\n");
 
   /* print source blocks */
