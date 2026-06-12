@@ -9,13 +9,14 @@
 
 #include <cbprng/cbprng.h>
 #include <cbprng/settings.h>
-#include <rand/rand.h>
+#include <rand64/rand64.h>
+#include <rand64/system.h>
 
 #define MAX_TEST_BITS 24
 
 typedef struct {
-  int* S;  // S-boxes: [layer][sbox][index]
-  int* P;  // P-boxes: [layer][bit]
+  int* S;
+  int* P;
   int bits;
   int layers;
   int sbox_bits;
@@ -67,8 +68,7 @@ int test_repetition(int bits) {
   uint64_t total = 1ULL << bits;
   char buffer[128];
 
-  snprintf(buffer, sizeof(buffer), "Finding duplicates in %2d-bit CBPRNG (%llu values)...", bits,
-           (unsigned long long)total);
+  snprintf(buffer, sizeof(buffer), "Finding duplicates in %2d-bit CBPRNG (%llu values)...", bits, (unsigned long long)total);
   printf("%-57s", buffer);
   fflush(stdout);
 
@@ -113,7 +113,7 @@ int test_repetition(int bits) {
 }
 
 int main(void) {
-  seed_prng();
+  srand64(seed64_system());
   printf("\nCBPRNG Exhaustive Duplicate Finder\n");
   printf("-------------------------------------------------------------------------------------\n");
 
@@ -121,7 +121,7 @@ int main(void) {
   int b;
 
   for (b = S_BOX_BITS; b <= max_test_bits; b += S_BOX_BITS) {
-    if (!test_repetition(b)){
+    if (!test_repetition(b)) {
       printf("-------------------------------------------------------------------------------------\n");
       printf("Some repetition found at %d-bit CBPRNG\n\n", b);
       return 1;

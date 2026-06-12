@@ -51,7 +51,7 @@ add_compile_definitions(
 # Subdirectories
 add_subdirectory(src/cbprng)
 add_subdirectory(src/fountain_code)
-add_subdirectory(src/rand)
+add_subdirectory(src/rand64)
 add_subdirectory(src/utils)
 
 
@@ -60,7 +60,7 @@ add_library(modified_tls_random INTERFACE)
 target_link_libraries(modified_tls_random INTERFACE
   fountain_code_lib
   cbprng_lib
-  random_utils
+  rand64_lib
   generic_utils
 )
 

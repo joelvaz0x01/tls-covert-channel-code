@@ -12,8 +12,10 @@
 #include <fountain_code/decoder.h>
 #include <fountain_code/encoder.h>
 #include <fountain_code/utils.h>
-#include <rand/rand.h>
+#include <rand64/system.h>
 #include <utils/utils.h>
+
+#include "rand64/rand64.h"
 
 /**
  * Prints the given selector as a binary string of exactly n characters.
@@ -128,7 +130,7 @@ int main(void) {
   putchar('\n');
 
   /* encode packets and decode on-the-fly */
-  seed_prng();
+  srand64(seed64_system());
 
   decoder_t* dec = calloc(1, sizeof(decoder_t));
   if (!dec) {

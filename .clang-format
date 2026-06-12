@@ -15,7 +15,7 @@ AlignTrailingComments: true
 IncludeBlocks: Regroup
 IncludeIsMainRegex: "$."
 IncludeCategories:
-  - Regex: "^<(cbprng|fountain_code|hash|rand|utils)/"
+  - Regex: "^<(cbprng|fountain_code|hash|rand64|utils)/"
     Priority: 2
   - Regex: "^<.*"
     Priority: 1

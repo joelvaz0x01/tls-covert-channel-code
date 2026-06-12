@@ -3,8 +3,9 @@
  * Licensed under the Apache License 2.0
  */
 
-#include <stdlib.h>
 #include <string.h>
+
+#include <rand64/rand64.h>
 
 #include "encoder.h"
 #include "utils.h"
@@ -52,7 +53,7 @@ packet_t encode_packet(int id, const block_t* blocks, int n, int m, int n_words)
   memset(&pkt.data, 0, sizeof(pkt.data));
 
   for (int i = 0; i < m; i++) {
-    int j = (int)(((uint64_t)(unsigned int)rand() + 314159311ULL * (uint64_t)(unsigned int)rand()) % (uint64_t)n);
+    int j = (int)(((uint64_t)(unsigned int)rand64() + 314159311ULL * (uint64_t)(unsigned int)rand64()) % (uint64_t)n);
     vec_set(&pkt.selector, j);
   }
 
