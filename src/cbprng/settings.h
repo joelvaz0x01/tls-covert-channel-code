@@ -19,7 +19,7 @@
 #endif
 
 #if S_BOX_BITS < 3
-#error "S_BOX_BITS must be at least 3"
+#error "Bits per S-box must be at least 3"
 #endif
 
 #if CBPRNG_BITS % S_BOX_BITS != 0

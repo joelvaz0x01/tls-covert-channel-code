@@ -26,7 +26,7 @@ static int avalanche_analysis(generator_t* g) {
       /* test P-box layer */
       if (layer < N_LAYERS - 1) {
         affected_bits = 0ul;
-        for (int idx = 0; idx < CBPRNG_BITS; idx++)  /* map bit idx to bit a[idx] */
+        for (int idx = 0; idx < CBPRNG_BITS; idx++) /* map bit idx to bit a[idx] */
           affected_bits |= ((new_affected_bits >> idx) & 1ul) << g->P[layer].a[idx];
       } else
         affected_bits = new_affected_bits;
@@ -38,7 +38,7 @@ static int avalanche_analysis(generator_t* g) {
 
 void pseudo_random_permutation(int n, int a[n]) {
   for (int idx = 0; idx < n; idx++) a[idx] = idx;
-  for (int idx = n - 1; idx > 0; idx--) {  /* 0 <= swap_idx <= idx */
+  for (int idx = n - 1; idx > 0; idx--) { /* 0 <= swap_idx <= idx */
     int swap_idx = (int)((unsigned int)rand() % (unsigned int)(idx + 1));
     int swap_data = a[swap_idx];
     a[swap_idx] = a[idx];
@@ -56,24 +56,31 @@ void pseudo_random_generator(generator_t* g) {
   } while (!avalanche_analysis(g));
 }
 
-mask_t generate_cbprng(generator_t* g, mask_t counter_value) {
-  mask_t s_box_mask = (1ul << S_BOX_BITS) - 1u;
-  mask_t bits = counter_value;
+mask_t generate_cbprng_generic(int* S, int* P, mask_t counter_value, int bits, int layers, int sbox_bits) {
+  mask_t s_box_mask = (1ul << sbox_bits) - 1u;
+  mask_t state = counter_value;
+  int n_sboxes = bits / sbox_bits;
+  int sbox_size = 1 << sbox_bits;
 
-  for (int layer = 0; layer < N_LAYERS; layer++) {
+  for (int layer = 0; layer < layers; layer++) {
     mask_t new_bits = 0ul;
-    for (int s_box_idx = 0; s_box_idx < CBPRNG_BITS / S_BOX_BITS; s_box_idx++) {
-      int idx = (int)((bits >> (s_box_idx * S_BOX_BITS)) & s_box_mask);
-      new_bits |= (mask_t)g->S[layer][s_box_idx].a[idx] << (s_box_idx * S_BOX_BITS);
+    for (int s_box_idx = 0; s_box_idx < n_sboxes; s_box_idx++) {
+      int idx = (int)((state >> (s_box_idx * sbox_bits)) & s_box_mask);
+      int output = S[layer * n_sboxes * sbox_size + s_box_idx * sbox_size + idx];
+      new_bits |= (mask_t)output << (s_box_idx * sbox_bits);
     }
 
-    if (layer < N_LAYERS - 1) {
-      bits = 0ul;
-      for (int idx = 0; idx < CBPRNG_BITS; idx++)
-        bits |= ((new_bits >> idx) & 1ul) << g->P[layer].a[idx];
+    if (layer < layers - 1) {
+      state = 0ul;
+      for (int idx = 0; idx < bits; idx++)
+        state |= ((new_bits >> idx) & 1ul) << P[layer * bits + idx];
     } else {
-      bits = new_bits;
+      state = new_bits;
     }
   }
-  return bits;
+  return state;
+}
+
+mask_t generate_cbprng(generator_t* g, mask_t counter_value) {
+  return generate_cbprng_generic((int*)g->S, (int*)g->P, counter_value, CBPRNG_BITS, N_LAYERS, S_BOX_BITS);
 }
