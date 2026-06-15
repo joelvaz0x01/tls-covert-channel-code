@@ -8,8 +8,9 @@
 #include <stdlib.h>
 
 #include <cbprng/cbprng.h>
+#include <cbprng/p_box.h>
+#include <cbprng/s_box.h>
 #include <cbprng/settings.h>
-#include <rand64/rand64.h>
 #include <rand64/system.h>
 
 #define MAX_TEST_BITS 24
@@ -41,26 +42,14 @@ void init_dynamic_gen(dynamic_gen_t* g, int bits) {
   for (int l = 0; l < g->layers; l++) {
     for (int s = 0; s < n_sboxes; s++) {
       int* box = &g->S[l * n_sboxes * sbox_size + s * sbox_size];
-      for (int i = 0; i < sbox_size; i++) box[i] = i;
-      for (int i = sbox_size - 1; i > 0; i--) {
-        int j = rand() % (i + 1);
-        int tmp = box[i];
-        box[i] = box[j];
-        box[j] = tmp;
-      }
+      pseudo_random_s_box((s_box_t*)box);
     }
   }
 
   /* fill P-Box with random permutations */
   for (int l = 0; l < g->layers - 1; l++) {
     int* box = &g->P[l * bits];
-    for (int i = 0; i < bits; i++) box[i] = i;
-    for (int i = bits - 1; i > 0; i--) {
-      int j = rand() % (i + 1);
-      int tmp = box[i];
-      box[i] = box[j];
-      box[j] = tmp;
-    }
+    pseudo_random_permutation(bits, box);
   }
 }
 
