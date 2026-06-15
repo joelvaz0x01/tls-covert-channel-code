@@ -37,7 +37,7 @@ void run_test(uint64_t n) {
   /* fill blocks with some pseudo-random data */
   unsigned char* src_bytes = (unsigned char*)src;
   for (size_t i = 0; i < (size_t)n * sizeof(block_t); i++) {
-    src_bytes[i] = (unsigned char)(rand64() % 256);
+    src_bytes[i] = (unsigned char)(rand64_between(0, 255));
   }
 
   int m = (int)round(2.5 * log((double)n) + EULER);

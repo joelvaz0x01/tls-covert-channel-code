@@ -29,8 +29,17 @@ void srand64(uint64_t seed);
  *
  * If srand64() has never been called, it will seed automatically with 1.
  *
- * @return  A pseudo-random value in [0, RAND64_MAX].
+ * @return A pseudo-random value in [0, RAND64_MAX].
  */
 uint64_t rand64(void);
+
+/**
+ * Returns a random uint64_t between min and max, inclusive.
+ *
+ * @param min The minimum value.
+ * @param max The maximum value.
+ * @return A pseudo-random value in [min, max].
+ */
+uint64_t rand64_between(uint64_t min, uint64_t max);
 
 #endif /* RAND64_H */

@@ -68,3 +68,7 @@ uint64_t rand64(void) {
   /* discard the least-significant bit (least-random), matching glibc random() behavior */
   return val >> 1;
 }
+
+uint64_t rand64_between(uint64_t min, uint64_t max) {
+  return min + rand64() % (max - min + 1);
+}
