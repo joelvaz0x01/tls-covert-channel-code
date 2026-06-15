@@ -35,7 +35,7 @@ static int64_t vec_lsb(const vec_t* v, const uint64_t n_words) {
   return -1;
 }
 
-packet_t encode_packet(int id, const block_t* blocks, uint64_t n, uint64_t m, uint64_t n_words) {
+packet_t encode_packet(const int id, const uint64_t seed, const block_t* blocks, const uint64_t n, const uint64_t m, const uint64_t n_words) {
   packet_t pkt;
   pkt.id = id;
   vec_zero(&pkt.selector, n_words);
@@ -43,7 +43,7 @@ packet_t encode_packet(int id, const block_t* blocks, uint64_t n, uint64_t m, ui
 
   uint64_t* indices = malloc(m * sizeof(uint64_t));
   if (!indices) return pkt;
-  uint64_t k = generate_k(m, (uint64_t)id, n, indices);
+  uint64_t k = generate_k(m, seed, n, indices);
   for (uint64_t i = 0; i < k; i++) {
     vec_set(&pkt.selector, indices[i]);
   }

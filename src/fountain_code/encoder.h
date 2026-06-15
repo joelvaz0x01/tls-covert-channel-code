@@ -25,7 +25,7 @@
  * @param nw Number of words in the selector vector.
  * @return The encoded packet.
  */
-packet_t encode_packet(int id, const block_t* blocks, uint64_t n, uint64_t m, uint64_t n_words);
+packet_t encode_packet(const int id, const uint64_t seed, const block_t* blocks, const uint64_t n, const uint64_t m, const uint64_t n_words);
 
 /**
  * Feeds a packet to the decoder.

@@ -52,7 +52,8 @@ void run_test(uint64_t n) {
   /* keep sending packets until the decoder has found enough pivots to solve the system */
   while (dec->remaining != 0) {
     seed64_system();
-    packet_t pkt = encode_packet(total_sent, src, n, m, n_words);
+    uint64_t seed = rand64();
+    packet_t pkt = encode_packet(total_sent, seed, src, n, m, n_words);
     decoder_feed(dec, &pkt);
     total_sent++;
 

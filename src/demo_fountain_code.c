@@ -15,6 +15,7 @@
 #include <fountain_code/encoder.h>
 #include <fountain_code/settings.h>
 #include <fountain_code/utils.h>
+#include <rand64/rand64.h>
 #include <rand64/system.h>
 #include <utils/utils.h>
 
@@ -129,7 +130,6 @@ int main(void) {
 
   /* encode packets and decode on-the-fly */
   seed64_system();
-
   decoder_t* dec = calloc(1, sizeof(decoder_t));
   if (!dec) {
     perror("calloc decoder");
@@ -152,7 +152,8 @@ int main(void) {
   putchar('\n');
 
   while (dec->remaining != 0) {
-    packet_t pkt = encode_packet(total_sent, src, n, m, n_words);
+    uint64_t seed = rand64();
+    packet_t pkt = encode_packet(total_sent, seed, src, n, m, n_words);
     total_sent++;
 
     bool useful = decoder_feed(dec, &pkt);
