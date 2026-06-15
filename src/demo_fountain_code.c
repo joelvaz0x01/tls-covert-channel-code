@@ -5,7 +5,7 @@
  * Toy example that demonstrates the Fountain Code encoder and decoder.
  */
 
-#include <math.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,11 +13,10 @@
 
 #include <fountain_code/decoder.h>
 #include <fountain_code/encoder.h>
+#include <fountain_code/settings.h>
 #include <fountain_code/utils.h>
 #include <rand64/system.h>
 #include <utils/utils.h>
-
-#include "settings.h"
 
 /**
  * Prints the given selector as a binary string of exactly n characters.
@@ -25,8 +24,8 @@
  * @param v Pointer to the selector to print.
  * @param n Number of characters to print.
  */
-static inline void print_sel(const vec_t* v, int n) {
-  for (int i = 0; i < n; i++) putchar(vec_test(v, i) ? '1' : '0');
+static inline void print_sel(const vec_t* v, uint64_t n) {
+  for (uint64_t i = 0; i < n; i++) putchar(vec_test(v, i) ? '1' : '0');
 }
 
 int main(void) {
@@ -74,7 +73,7 @@ int main(void) {
   rewind(fp);
 
   /* Calculate number of blocks based on bit size */
-  int n = (int)((file_bits + FC_BLOCK_SIZE - 1) / FC_BLOCK_SIZE);
+  uint64_t n = (uint64_t)((file_bits + FC_BLOCK_SIZE - 1) / FC_BLOCK_SIZE);
   if (n < 2 || n > MAX_BLOCKS) {
     fprintf(stderr, "File must produce between 2 and %d blocks.\n", MAX_BLOCKS);
     fclose(fp);
@@ -89,7 +88,7 @@ int main(void) {
   }
 
   /* Reading file into blocks. The data is stored in the uint64_t words of block_t. */
-  for (int i = 0; i < n; i++) {
+  for (uint64_t i = 0; i < n; i++) {
     int to_read = FC_BLOCK_SIZE;
     if (file_bits < to_read) to_read = (int)file_bits;
     if (to_read > 0) {
@@ -106,23 +105,21 @@ int main(void) {
   file_bits = original_file_bits;
 
   /* compute packet degree m */
-  int m = (int)round(ALPHA * log((double)n) + EULER);
-  if (m < 1) m = 1;
-  if (m >= n) m = n - 1;
+  uint64_t m = generate_m(n);
 
   /* print banner */
   printf("======================================================================\n");
   printf(" Fountain Code File-Transfer Demo\n");
   printf("======================================================================\n");
   printf(" Input file    : %s (%ld bits)\n", input_file, file_bits);
-  printf(" Source blocks : n = %d blocks (each with %d bits)\n", n, FC_BLOCK_SIZE);
-  printf(" Degree        : m = round(%.1f * ln(%d) + Euler-Mascheroni)\n", ALPHA, n);
+  printf(" Source blocks : n = %" PRIu64 " blocks (each with %d bits)\n", n, FC_BLOCK_SIZE);
+  printf(" Degree        : m = round(%.1f * ln(%" PRIu64 ") + Euler-Mascheroni)\n", ALPHA, n);
   printf("======================================================================\n\n");
 
   /* print source blocks */
   printf("[ Source blocks ]\n");
-  for (int i = 0; i < n; i++) {
-    printf("  [%2d]  hex: ", i);
+  for (uint64_t i = 0; i < n; i++) {
+    printf("  [%2" PRIu64 "]  hex: ", i);
     print_hex_bits(&src[i], FC_BLOCK_SIZE);
     printf("  txt: \"");
     print_ascii_bits(&src[i], FC_BLOCK_SIZE);
@@ -141,31 +138,31 @@ int main(void) {
   }
   decoder_init(dec, n);
 
-  int n_words = (n + 63) / 64;
+  uint64_t n_words = (n + 63) / 64;
   int total_sent = 0;
   int total_useful = 0;
 
   /* column header */
   printf("[ Fountain packets ]\n");
-  printf("  %-4s  %-*s  %-*s  %s\n", "Pkt#", n, "Selector", (FC_BLOCK_SIZE >> 2), "Encoded data (hex)", "Status");
+  printf("  %-4s  %-*s  %-*s  %s\n", "Pkt#", (int)n, "Selector", (FC_BLOCK_SIZE >> 2), "Encoded data (hex)", "Status");
 
   /* separator line */
   printf("  ");
-  for (int k = 0; k < 6 + n + 2 + (FC_BLOCK_SIZE >> 2) + 2 + 30; k++) putchar('-');
+  for (int k = 0; k < 6 + (int)n + 2 + (FC_BLOCK_SIZE >> 2) + 2 + 30; k++) putchar('-');
   putchar('\n');
 
-  while (dec->remaining > 0) {
+  while (dec->remaining != 0) {
     packet_t pkt = encode_packet(total_sent, src, n, m, n_words);
     total_sent++;
 
-    int useful = decoder_feed(dec, &pkt);
+    bool useful = decoder_feed(dec, &pkt);
     if (useful) total_useful++;
 
     printf("  #%-3d  ", pkt.id);
     print_sel(&pkt.selector, n);
     printf("  ");
     print_hex_bits(&pkt.data, FC_BLOCK_SIZE);
-    printf("  %s  (remaining=%d)\n", useful ? "[ new pivot ]" : "[ redundant ]", dec->remaining);
+    printf("  %s  (remaining=%" PRIu64 ")\n", useful ? "[ new pivot ]" : "[ redundant ]", dec->remaining);
   }
 
   printf(
@@ -188,11 +185,11 @@ int main(void) {
 
   /* print reconstructed blocks */
   printf("[ Reconstructed blocks ]\n");
-  int all_ok = 1;
-  for (int i = 0; i < n; i++) {
-    int ok = (memcmp(&out[i], &src[i], sizeof(block_t)) == 0);
-    if (!ok) all_ok = 0;
-    printf("  [%2d]  hex: ", i);
+  bool all_ok = true;
+  for (uint64_t i = 0; i < n; i++) {
+    bool ok = (memcmp(&out[i], &src[i], sizeof(block_t)) == 0);
+    if (!ok) all_ok = false;
+    printf("  [%2" PRIu64 "]  hex: ", i);
     print_hex_bits(&out[i], FC_BLOCK_SIZE);
     printf("  txt: \"");
     print_ascii_bits(&out[i], FC_BLOCK_SIZE);
@@ -203,7 +200,7 @@ int main(void) {
   fp = fopen(output_file, "wb");
   if (fp) {
     long remaining_bits = original_file_bits;
-    for (int i = 0; i < n; i++) {
+    for (uint64_t i = 0; i < n; i++) {
       int to_write = FC_BLOCK_SIZE;
       if (remaining_bits < to_write) to_write = (int)remaining_bits;
       if (to_write > 0) {
