@@ -17,7 +17,7 @@
 #include <rand64/system.h>
 #include <utils/utils.h>
 
-#include "rand64/rand64.h"
+#include "settings.h"
 
 /**
  * Prints the given selector as a binary string of exactly n characters.
@@ -106,8 +106,7 @@ int main(void) {
   file_bits = original_file_bits;
 
   /* compute packet degree m */
-  double alpha = 2.5;
-  int m = (int)round(alpha * log((double)n) + EULER);
+  int m = (int)round(ALPHA * log((double)n) + EULER);
   if (m < 1) m = 1;
   if (m >= n) m = n - 1;
 
@@ -117,7 +116,7 @@ int main(void) {
   printf("======================================================================\n");
   printf(" Input file    : %s (%ld bits)\n", input_file, file_bits);
   printf(" Source blocks : n = %d blocks (each with %d bits)\n", n, FC_BLOCK_SIZE);
-  printf(" Degree        : m = round(%.1f * ln(%d) + Euler-Mascheroni)\n", alpha, n);
+  printf(" Degree        : m = round(%.1f * ln(%d) + Euler-Mascheroni)\n", ALPHA, n);
   printf("======================================================================\n\n");
 
   /* print source blocks */

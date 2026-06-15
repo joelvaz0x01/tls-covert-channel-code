@@ -19,4 +19,6 @@
 #endif
 
 
+#define ALPHA            2.5
+
 #endif /* SETTINGS_H */
