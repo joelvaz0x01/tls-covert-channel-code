@@ -3,9 +3,10 @@
  * Licensed under the Apache License 2.0
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
-
-#include <rand64/rand64.h>
 
 #include "encoder.h"
 #include "utils.h"
@@ -16,18 +17,8 @@
  * @param v Pointer to the vector.
  * @param n_words Number of words to set to zero.
  */
-static void vec_zero(vec_t* v, int n_words) {
-  for (int i = 0; i < n_words; i++) v->w[i] = 0;
-}
-
-/**
- * Sets a bit in a vector to 1.
- *
- * @param v Pointer to the vector.
- * @param bit The bit index to set.
- */
-static void vec_set(vec_t* v, int bit) {
-  v->w[bit / 64] |= (uint64_t)1 << (bit % 64);
+static void vec_zero(vec_t* v, const uint64_t n_words) {
+  for (uint64_t i = 0; i < n_words; i++) v->w[i] = 0;
 }
 
 /**
@@ -37,27 +28,28 @@ static void vec_set(vec_t* v, int bit) {
  * @param n_words Number of words to check.
  * @return The index of the least significant bit set, or -1 if none is set.
  */
-static int vec_lsb(const vec_t* v, int n_words) {
-  for (int i = 0; i < n_words; i++) {
-    if (0 != v->w[i]) {
-      return 64 * i + ctz64(v->w[i]);
-    }
-  }
+static int64_t vec_lsb(const vec_t* v, const uint64_t n_words) {
+  for (uint64_t i = 0; i < n_words; i++)
+    if (0 != v->w[i])
+      return (int64_t)(64 * i + (uint64_t)ctz64(v->w[i]));
   return -1;
 }
 
-packet_t encode_packet(int id, const block_t* blocks, int n, int m, int n_words) {
+packet_t encode_packet(int id, const block_t* blocks, uint64_t n, uint64_t m, uint64_t n_words) {
   packet_t pkt;
   pkt.id = id;
   vec_zero(&pkt.selector, n_words);
   memset(&pkt.data, 0, sizeof(pkt.data));
 
-  for (int i = 0; i < m; i++) {
-    int j = (int)(((uint64_t)(unsigned int)rand64() + 314159311ULL * (uint64_t)(unsigned int)rand64()) % (uint64_t)n);
-    vec_set(&pkt.selector, j);
+  uint64_t* indices = malloc(m * sizeof(uint64_t));
+  if (!indices) return pkt;
+  uint64_t k = generate_k(m, (uint64_t)id, n, indices);
+  for (uint64_t i = 0; i < k; i++) {
+    vec_set(&pkt.selector, indices[i]);
   }
+  free(indices);
 
-  for (int j = 0; j < n; j++) {
+  for (uint64_t j = 0; j < n; j++) {
     if (vec_test(&pkt.selector, j)) {
       data_xor(&pkt.data, &blocks[j]);
     }
@@ -66,20 +58,20 @@ packet_t encode_packet(int id, const block_t* blocks, int n, int m, int n_words)
   return pkt;
 }
 
-int decoder_feed(decoder_t* dec, const packet_t* pkt) {
+bool decoder_feed(decoder_t* dec, const packet_t* pkt) {
   vec_t sel = pkt->selector;
   block_t dat = pkt->data;
 
   for (;;) {
-    int i = vec_lsb(&sel, dec->n_words);
-    if (i < 0) return 0;
+    int64_t i = vec_lsb(&sel, dec->n_words);
+    if (i < 0) return false;
 
     if (!dec->pivot_present[i]) {
-      dec->pivot_present[i] = 1;
+      dec->pivot_present[i] = true;
       dec->pivot_sel[i] = sel;
       dec->pivot_data[i] = dat;
       dec->remaining--;
-      return 1;
+      return true;
     }
     vec_xor(&sel, &dec->pivot_sel[i], dec->n_words);
     data_xor(&dat, &dec->pivot_data[i]);

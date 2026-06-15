@@ -5,6 +5,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,12 +22,12 @@
  *
  * @param n Number of source blocks to test.
  */
-void run_test(int n) {
+void run_test(uint64_t n) {
   seed64_system();
-  printf("Testing with n = %4d blocks...  ", n);
+  printf("Testing with n = %4" PRIu64 " blocks...  ", n);
 
   if (n < 2 || n > MAX_BLOCKS) {
-    fprintf(stderr, "Error: invalid n = %d (must be between 2 and %d)\n", n, MAX_BLOCKS);
+    fprintf(stderr, "Error: invalid n = %" PRIu64 " (must be between 2 and %" PRIu64 ")\n", n, (uint64_t)MAX_BLOCKS);
     assert(0);
   }
 
@@ -48,11 +49,11 @@ void run_test(int n) {
   assert(NULL != dec);
   decoder_init(dec, n);
 
-  int n_words = (n + 63) / 64;
+  uint64_t n_words = (n + 63) / 64;
   int total_sent = 0;
 
   /* keep sending packets until the decoder has found enough pivots to solve the system */
-  while (dec->remaining > 0) {
+  while (dec->remaining != 0) {
     seed64_system();
     packet_t pkt = encode_packet(total_sent, src, n, m, n_words);
     decoder_feed(dec, &pkt);
@@ -74,7 +75,7 @@ void run_test(int n) {
   int match = (0 == memcmp(src, out, (size_t)n * sizeof(block_t)));
 
   if (!match) {
-    fprintf(stderr, "FAILURE: Reconstructed data does not match original for n=%d\n", n);
+    fprintf(stderr, "FAILURE: Reconstructed data does not match original for n=%" PRIu64 "\n", n);
     assert(match);
   }
 
@@ -90,7 +91,7 @@ int main(void) {
   printf("---------------------------------------------------------------------\n");
 
   /* test a variety of sizes */
-  int n;
+  uint64_t n;
   for (n = 2; n <= MAX_BLOCKS; n *= 2) {
     run_test(n);
   }

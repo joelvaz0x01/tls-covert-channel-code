@@ -6,6 +6,7 @@
 #ifndef FOUNTAIN_CODE_UTILS_H
 #define FOUNTAIN_CODE_UTILS_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #ifdef _MSC_VER
@@ -27,7 +28,7 @@ static inline int ctz64(uint64_t value) {
   _BitScanForward64(&index, value);
   return (int)index;
 #else
-  return __builtin_ctzll(value);
+  return __builtin_ctzll((unsigned long long)value);
 #endif
 }
 
@@ -77,10 +78,10 @@ typedef struct {
  * @var pivot_data Pivot data for each block.
  */
 typedef struct {
-  int n;
-  int n_words;
-  int remaining;
-  int pivot_present[MAX_BLOCKS];
+  uint64_t n;
+  uint64_t n_words;
+  uint64_t remaining;
+  bool pivot_present[MAX_BLOCKS];
   vec_t pivot_sel[MAX_BLOCKS];
   block_t pivot_data[MAX_BLOCKS];
 } decoder_t;
@@ -90,9 +91,21 @@ typedef struct {
  *
  * @param v Pointer to the vector.
  * @param bit The bit index to test.
- * @return 1 if the bit is set, 0 otherwise.
+ * @return true if the bit is set, false otherwise.
  */
-int vec_test(const vec_t* v, int bit);
+static inline bool vec_test(const vec_t* v, uint64_t bit) {
+  return (v->w[bit / 64] >> (bit % 64)) & 1;
+}
+
+/**
+ * Sets a bit in a vector to 1.
+ *
+ * @param v Pointer to the vector.
+ * @param bit The bit index to set.
+ */
+static inline void vec_set(vec_t* v, uint64_t bit) {
+  v->w[bit / 64] |= (uint64_t)1 << (bit % 64);
+}
 
 /**
  * Performs XOR operation on two blocks of FC_BLOCK_SIZE bits.
@@ -109,7 +122,7 @@ void data_xor(block_t* dst, const block_t* src);
  * @param src Pointer to the source vector.
  * @param n_words Number of words to XOR.
  */
-void vec_xor(vec_t* dst, const vec_t* src, int n_words);
+void vec_xor(vec_t* dst, const vec_t* src, uint64_t n_words);
 
 /**
  * Initializes the decoder.
@@ -117,6 +130,6 @@ void vec_xor(vec_t* dst, const vec_t* src, int n_words);
  * @param dec Pointer to the decoder structure to initialize.
  * @param n Number of source blocks.
  */
-void decoder_init(decoder_t* dec, int n);
+void decoder_init(decoder_t* dec, uint64_t n);
 
 #endif /* FOUNTAIN_CODE_UTILS_H */

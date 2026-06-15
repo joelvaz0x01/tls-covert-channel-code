@@ -12,4 +12,14 @@
 #define EULER         0.5772156649015329          /**< Euler–Mascheroni constant           */
 #define VEC_WORDS     ((MAX_BLOCKS + 63) / 64)    /**< number of words in the vector       */
 
+#define ALPHA         2.5
+
+#if FC_BLOCK_SIZE < 1
+#error "FC_BLOCK_SIZE must be at least 1"
+#endif
+
+#if MAX_BLOCKS < 2
+#error "MAX_BLOCKS must be at least 2"
+#endif
+
 #endif /* FOUNTAIN_CODE_SETTINGS_H */
