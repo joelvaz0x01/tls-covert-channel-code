@@ -14,9 +14,7 @@
 /* trinomial separation */
 #define PRNG_SEP   3
 
-/*
- * 64-bit Knuth LCG multiplier for state-table initialization (PCG multiplier)
- */
+/* PCG multiplier values based on musl libc 64-bit LCG */
 #define INIT_MUL   UINT64_C(6364136223846793005)
 #define INIT_ADD   UINT64_C(1)
 

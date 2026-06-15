@@ -11,7 +11,7 @@
 #include "state.h"
 
 /**
- * @struct seed_t
+ * @struct rand64_seed_t
  * Represents a seed for the random number generator.
  *
  * @var init Initializes the seed.
@@ -27,19 +27,21 @@ typedef struct {
 } rand64_seed_t;
 
 /**
+ * @struct rand64_state_t
  * Complete snapshot of the 64-bit PRNG state.
  *
- * Capture with rand64_save(); restore with rand64_load().
- * Storing this struct preserves not just the seed but also the exact
- * position inside the state table, so that rand64() continues from the
- * same point after a restore.
+ * @var table Copy of the 31-word state table.
+ * @var fptr_idx Front-pointer index into table.
+ * @var rptr_idx Rear-pointer index into table.
+ * @var initialized Non-zero when the PRNG has been seeded.
+ * @var seed Last seed passed to srand64().
  */
 typedef struct {
-  uint64_t table[RAND64_DEG]; /* copy of the 31-word state table          */
-  int fptr_idx;               /* front-pointer index into table           */
-  int rptr_idx;               /* rear-pointer index into table            */
-  int initialized;            /* non-zero when the PRNG has been seeded   */
-  uint64_t seed;              /* last seed passed to srand64()            */
+  uint64_t table[RAND64_DEG];
+  int fptr_idx;
+  int rptr_idx;
+  int initialized;
+  uint64_t seed;
 } rand64_state_t;
 
 /**

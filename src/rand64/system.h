@@ -13,6 +13,6 @@
  *
  * @return the 64-bit seed
  */
-uint64_t seed64_system(void);
+void seed64_system(void);
 
 #endif /* RAND64_SYSTEM_H */

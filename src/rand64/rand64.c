@@ -21,15 +21,26 @@ uint64_t* prng_rptr = prng_state;
 int prng_initialized = 0;
 uint64_t prng_seed = 0;
 
+/**
+ * Computes the next value in LCG.
+ *
+ * @param x The current value in the LCG sequence.
+ * @return The next value in the LCG sequence.
+ */
+static inline uint64_t lcg64(uint64_t x) {
+  return INIT_MUL * x + INIT_ADD;
+}
+
 void srand64(uint64_t seed) {
-  if (!seed) seed = 1; /* avoid seed == 0, matching the glibc srandom() convention. */
+  if (!seed) seed = 1; /* initialize seed to 1 to avoid seed == 0, matching the glibc srandom() convention. */
 
   prng_seed = seed;
 
   prng_state[0] = seed;
   for (int i = 1; i < RAND64_DEG; i++) /* fills the 31-element state table using Knuth's 64-bit LCG multiplier */
-    prng_state[i] = prng_state[i - 1] * INIT_MUL + INIT_ADD;
+    prng_state[i] = lcg64(prng_state[i - 1]);
 
+  /* initialize the generator state pointers */
   prng_fptr = prng_state + PRNG_SEP;
   prng_rptr = prng_state;
 
@@ -49,6 +60,8 @@ uint64_t rand64(void) {
 
   uint64_t val = *prng_fptr + *prng_rptr;
   *prng_fptr = val;
+
+  /* advance the generator state pointers */
   if (++prng_fptr >= prng_state + RAND64_DEG) prng_fptr = prng_state;
   if (++prng_rptr >= prng_state + RAND64_DEG) prng_rptr = prng_state;
 

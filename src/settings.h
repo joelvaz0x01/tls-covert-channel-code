@@ -18,10 +18,5 @@
 #error "Random field must be 256 bits (32 bytes)"
 #endif
 
-/**
- * Choose the random algorithm to use:
- *   - 0 for system PRNG
- *   - 1 for time-based PRNG
- */
 
 #endif /* SETTINGS_H */

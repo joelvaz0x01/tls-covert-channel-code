@@ -68,6 +68,8 @@ int test_repetition(int bits) {
   uint64_t total = 1ULL << bits;
   char buffer[128];
 
+  seed64_system();
+
   snprintf(buffer, sizeof(buffer), "Finding duplicates in %2d-bit CBPRNG (%llu values)...", bits, (unsigned long long)total);
   printf("%-57s", buffer);
   fflush(stdout);
@@ -113,7 +115,6 @@ int test_repetition(int bits) {
 }
 
 int main(void) {
-  srand64(seed64_system());
   printf("\nCBPRNG Exhaustive Duplicate Finder\n");
   printf("-------------------------------------------------------------------------------------\n");
 

@@ -13,10 +13,11 @@
 #include <unistd.h>
 #endif
 
+#include "rand64.h"
 #include "system.h"
 #include "time.h"
 
-uint64_t seed64_system(void) {
+void seed64_system(void) {
   uint64_t seed = 0;
   int success = 0;
 
@@ -35,8 +36,9 @@ uint64_t seed64_system(void) {
 #endif
 
   if (!success) { /* fallback to time-based seed */
-    return seed64_time();
+    seed64_time();
+    return;
   }
 
-  return seed;
+  srand64(seed);
 }

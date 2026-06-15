@@ -1,3 +1,8 @@
+/*
+ * Copyright 2026 Joel Vaz. All rights reserved.
+ * Licensed under the Apache License 2.0
+ */
+
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -7,6 +12,9 @@
 
 #include <fountain_code/decoder.h>
 #include <fountain_code/encoder.h>
+#include <fountain_code/settings.h>
+#include <rand64/rand64.h>
+#include <rand64/system.h>
 
 /**
  * Performs a complete encode-decode-verify cycle for a given number of source blocks.
@@ -14,6 +22,7 @@
  * @param n Number of source blocks to test.
  */
 void run_test(int n) {
+  seed64_system();
   printf("Testing with n = %4d blocks...  ", n);
 
   if (n < 2 || n > MAX_BLOCKS) {
@@ -27,10 +36,10 @@ void run_test(int n) {
   /* fill blocks with some pseudo-random data */
   unsigned char* src_bytes = (unsigned char*)src;
   for (size_t i = 0; i < (size_t)n * sizeof(block_t); i++) {
-    src_bytes[i] = (unsigned char)(rand() % 256);
+    src_bytes[i] = (unsigned char)(rand64() % 256);
   }
 
-  int m = (int)round(2.0 * log((double)n) + EULER);
+  int m = (int)round(2.5 * log((double)n) + EULER);
   if (m < 1) m = 1;
   if (m >= n) m = n - 1;
 
@@ -44,6 +53,7 @@ void run_test(int n) {
 
   /* keep sending packets until the decoder has found enough pivots to solve the system */
   while (dec->remaining > 0) {
+    seed64_system();
     packet_t pkt = encode_packet(total_sent, src, n, m, n_words);
     decoder_feed(dec, &pkt);
     total_sent++;
@@ -68,7 +78,7 @@ void run_test(int n) {
     assert(match);
   }
 
-  printf("SUCCESS (sent %4d packets)\n", total_sent);
+  printf("SUCCESS (%5d packets generated)\n", total_sent);
 
   free(src);
   free(out);
@@ -76,22 +86,19 @@ void run_test(int n) {
 }
 
 int main(void) {
-  srand((unsigned int)time(NULL));
   printf("\nStarting Fountain Code Implementation Tests...\n");
-  printf("-------------------------------------------------------------\n");
+  printf("---------------------------------------------------------------------\n");
 
   /* test a variety of sizes */
-  run_test(2);
-  run_test(5);
-  run_test(10);
-  run_test(32);
-  run_test(64);
-  run_test(100);
-  run_test(256);
-  run_test(512);
-  run_test(MAX_BLOCKS); /* maximum supported */
+  int n;
+  for (n = 2; n <= MAX_BLOCKS; n *= 2) {
+    run_test(n);
+  }
 
-  printf("-------------------------------------------------------------\n");
+  if (n / 2 != MAX_BLOCKS)
+    run_test(MAX_BLOCKS);
+
+  printf("---------------------------------------------------------------------\n");
   printf("All tests passed successfully!\n\n");
 
   return 0;

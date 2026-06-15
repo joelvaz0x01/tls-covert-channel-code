@@ -18,7 +18,7 @@ const rand64_seed_t cbprng_seed = {
 };
 
 void cbprng_seed_init(void) {
-  srand64(seed64_system());
+  seed64_system();
   rand64_save(&cbprng_state);
 }
 

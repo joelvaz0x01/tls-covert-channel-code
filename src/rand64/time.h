@@ -13,6 +13,6 @@
  *
  * @return the 64-bit seed
  */
-uint64_t seed64_time(void);
+void seed64_time(void);
 
 #endif /* RAND64_TIME_H */

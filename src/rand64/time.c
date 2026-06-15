@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <time.h>
 
+#include "rand64.h"
 #include "time.h"
 
 /**
@@ -24,7 +25,7 @@ static inline uint64_t fmix64(uint64_t k) {
   return k;
 }
 
-uint64_t seed64_time(void) {
+void seed64_time(void) {
   /*
    * lower 32 bits: current time
    * upper 32 bits: number of clock ticks since process start
@@ -32,5 +33,5 @@ uint64_t seed64_time(void) {
   uint64_t seed = ((uint64_t)(uint32_t)clock() << 32) | (uint64_t)(uint32_t)time(NULL);
 
   /* spread entropy across all bits */
-  return fmix64(seed);
+  srand64(fmix64(seed));
 }

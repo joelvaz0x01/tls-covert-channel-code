@@ -1,6 +1,8 @@
-/**
- * @file fountain-code-demo.c
- * @brief Toy example that demonstrates the fountain code encoder and decoder.
+/*
+ * Copyright 2026 Joel Vaz. All rights reserved.
+ * Licensed under the Apache License 2.0
+ *
+ * Toy example that demonstrates the Fountain Code encoder and decoder.
  */
 
 #include <math.h>
@@ -130,7 +132,7 @@ int main(void) {
   putchar('\n');
 
   /* encode packets and decode on-the-fly */
-  srand64(seed64_system());
+  seed64_system();
 
   decoder_t* dec = calloc(1, sizeof(decoder_t));
   if (!dec) {
