@@ -4,7 +4,6 @@
  */
 
 #include <assert.h>
-#include <math.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,9 +39,7 @@ void run_test(uint64_t n) {
     src_bytes[i] = (unsigned char)(rand64_between(0, 255));
   }
 
-  int m = (int)round(2.5 * log((double)n) + EULER);
-  if (m < 1) m = 1;
-  if (m >= n) m = n - 1;
+  uint64_t m = generate_m(n);
 
   /* decode blocks on-the-fly */
   decoder_t* dec = calloc(1, sizeof(decoder_t));

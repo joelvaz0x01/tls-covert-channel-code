@@ -132,4 +132,24 @@ void vec_xor(vec_t* dst, const vec_t* src, uint64_t n_words);
  */
 void decoder_init(decoder_t* dec, uint64_t n);
 
+/**
+ * Calculates the number of parts to encode on Fountain Code.
+ *
+ * @param n The number of blocks.
+ * @return The number of parts to generate.
+ */
+uint64_t generate_m(uint64_t n);
+
+/**
+ * Generates m unique values in [0, n-1] using a seed and stores them
+ * in the out array. Duplicates from the random draws will be discarded.
+ *
+ * @param m The number of values to draw.
+ * @param seed The seed for the pseudo-random number generator.
+ * @param n Upper bound (exclusive) for the generated values.
+ * @param out Pointer to the array where generated values will be stored.
+ * @return The number of unique values stored in out (may be less than m).
+ */
+uint64_t generate_k(uint64_t m, uint64_t seed, uint64_t n, uint64_t* out);
+
 #endif /* FOUNTAIN_CODE_UTILS_H */
