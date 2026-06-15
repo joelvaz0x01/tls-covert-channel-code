@@ -3,7 +3,7 @@
  * Licensed under the Apache License 2.0
  */
 
-#include <stdlib.h>
+#include <rand64/rand64.h>
 
 #include "cbprng.h"
 
@@ -39,7 +39,7 @@ static int avalanche_analysis(generator_t* g) {
 void pseudo_random_permutation(int n, int a[n]) {
   for (int idx = 0; idx < n; idx++) a[idx] = idx;
   for (int idx = n - 1; idx > 0; idx--) { /* 0 <= swap_idx <= idx */
-    int swap_idx = (int)((unsigned int)rand() % (unsigned int)(idx + 1));
+    int swap_idx = (int)((unsigned int)rand64() % (unsigned int)(idx + 1));
     int swap_data = a[swap_idx];
     a[swap_idx] = a[idx];
     a[idx] = swap_data;

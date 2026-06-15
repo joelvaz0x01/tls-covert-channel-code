@@ -15,7 +15,7 @@
  * @param a The S-box permutation array.
  * @return 1 if it passes, 0 otherwise.
  */
-static inline int passes_completeness_test(int n, const int* a) {
+static inline int completeness_test(int n, const int* a) {
   for (int bit_mask_out = 1; bit_mask_out < n; bit_mask_out <<= 1) {
     for (int bit_mask_in = 1; bit_mask_in < n; bit_mask_in <<= 1) {
       int idx;
@@ -35,7 +35,7 @@ static inline int passes_completeness_test(int n, const int* a) {
  * @param a The S-box permutation array.
  * @return 1 if it passes, 0 otherwise.
  */
-static inline int passes_nonlinearity_test(int n, const int* a) {
+static inline int nonlinearity_test(int n, const int* a) {
   for (int idx1 = 0; idx1 < n; idx1++) {
     int idx2;
     for (idx2 = 0; idx2 < n && (a[idx1] ^ a[idx2]) == a[idx1 ^ idx2]; idx2++);
@@ -48,6 +48,5 @@ void pseudo_random_s_box(s_box_t* s) {
   int n = 1 << S_BOX_BITS;
   do {
     pseudo_random_permutation(n, s->a);
-  } while (!passes_completeness_test(n, s->a) ||
-           !passes_nonlinearity_test(n, s->a));
+  } while (!completeness_test(n, s->a) && !nonlinearity_test(n, s->a));
 }
