@@ -15,7 +15,7 @@
  * @var a The permutation array.
  */
 typedef struct {
-  int a[1 << S_BOX_BITS];  // input idx gives the output a[idx]
+  perm_val_t a[1 << S_BOX_BITS];  // input idx gives the output a[idx]
 } s_box_t;
 
 /**

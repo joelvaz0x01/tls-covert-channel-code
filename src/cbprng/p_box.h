@@ -15,7 +15,7 @@
  * @var a The permutation array.
  */
 typedef struct {
-  int a[CBPRNG_BITS];  // bit idx goes to bit a[idx]
+  perm_val_t a[CBPRNG_BITS];  // bit idx goes to bit a[idx]
 } p_box_t;
 
 /**

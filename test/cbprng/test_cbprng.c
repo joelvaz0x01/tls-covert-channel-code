@@ -16,8 +16,8 @@
 #define MAX_TEST_BITS 24
 
 typedef struct {
-  int* S;
-  int* P;
+  perm_val_t* S;
+  perm_val_t* P;
   int bits;
   int layers;
   int sbox_bits;
@@ -35,25 +35,25 @@ void init_dynamic_gen(dynamic_gen_t* g, int bits) {
   int sbox_size = 1 << g->sbox_bits;
   int n_sboxes = bits / g->sbox_bits;
 
-  g->S = malloc(g->layers * n_sboxes * sbox_size * sizeof(int));
-  g->P = malloc((g->layers - 1) * bits * sizeof(int));
+  g->S = malloc(g->layers * n_sboxes * sbox_size * sizeof(perm_val_t));
+  g->P = malloc((g->layers - 1) * bits * sizeof(perm_val_t));
 
   /* fill S-Box with random permutations */
   for (int l = 0; l < g->layers; l++) {
     for (int s = 0; s < n_sboxes; s++) {
-      int* box = &g->S[l * n_sboxes * sbox_size + s * sbox_size];
+      perm_val_t* box = &g->S[l * n_sboxes * sbox_size + s * sbox_size];
       pseudo_random_s_box((s_box_t*)box);
     }
   }
 
   /* fill P-Box with random permutations */
   for (int l = 0; l < g->layers - 1; l++) {
-    int* box = &g->P[l * bits];
+    perm_val_t* box = &g->P[l * bits];
     pseudo_random_permutation(bits, box);
   }
 }
 
-int test_repetition(int bits) {
+bool test_repetition(int bits) {
   uint64_t total = 1ULL << bits;
   char buffer[128];
 
@@ -70,7 +70,7 @@ int test_repetition(int bits) {
   if (!seen) {
     printf(" [Memory Fail]\n\n");
     free_dynamic_gen(&g);
-    return 0;
+    return false;
   }
 
   uint64_t step = total / 100;
@@ -86,13 +86,13 @@ int test_repetition(int bits) {
       printf("\r%-59s [FAIL] Out of range!\n\n", buffer);
       free(seen);
       free_dynamic_gen(&g);
-      return 0;
+      return false;
     }
     if (seen[val]) {
       printf("\r%-59s [FAIL] Duplicated value!\n\n", buffer);
       free(seen);
       free_dynamic_gen(&g);
-      return 0;
+      return false;
     }
     seen[val] = 1;
   }
@@ -100,7 +100,7 @@ int test_repetition(int bits) {
   printf("\r%-59s [OK]     \n", buffer);
   free(seen);
   free_dynamic_gen(&g);
-  return 1;
+  return true;
 }
 
 int main(void) {
