@@ -3,11 +3,12 @@
  * Licensed under the Apache License 2.0
  */
 
-#include <stdint.h>
-#include <time.h>
+#ifndef RAND_UTILS_H
+#define RAND_UTILS_H
 
-#include "rand64.h"
-#include "time.h"
+#include <stdint.h>
+
+#include <uint128/uint128.h>
 
 /**
  * Finalizes a 64-bit value using MurmurHash3 finalizer mix.
@@ -25,13 +26,17 @@ static inline uint64_t fmix64(uint64_t k) {
   return k;
 }
 
-void seed64_time(void) {
-  /*
-   * lower 32 bits: current time
-   * upper 32 bits: number of clock ticks since process start
-   */
-  uint64_t seed = ((uint64_t)(uint32_t)clock() << 32) | (uint64_t)(uint32_t)time(NULL);
-
-  /* spread entropy across all bits */
-  srand64(fmix64(seed));
+/**
+ * 128-bit LCG recurrence:
+ *   - state = (mul * state + add) mod 2^128.
+ *
+ * @param state Current 128-bit state.
+ * @param mul 128-bit multiplier.
+ * @param add 128-bit addend.
+ * @return The next 128-bit state.
+ */
+static inline uint128_t lcg128(uint128_t state, uint128_t mul, uint128_t add) {
+  return add128(mul128(mul, state), add);
 }
+
+#endif /* RAND_UTILS_H */

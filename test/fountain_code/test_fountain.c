@@ -13,8 +13,8 @@
 #include <fountain_code/decoder.h>
 #include <fountain_code/encoder.h>
 #include <fountain_code/settings.h>
-#include <rand64/rand64.h>
-#include <rand64/system.h>
+#include <rand/rand64.h>
+#include <rand/system.h>
 
 /**
  * Performs a complete encode-decode-verify cycle for a given number of source blocks.

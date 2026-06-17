@@ -51,7 +51,7 @@ add_compile_definitions(
 # Subdirectories
 add_subdirectory(src/cbprng)
 add_subdirectory(src/fountain_code)
-add_subdirectory(src/rand64)
+add_subdirectory(src/rand)
 add_subdirectory(src/uint128)
 add_subdirectory(src/utils)
 
@@ -61,7 +61,7 @@ add_library(modified_tls_random INTERFACE)
 target_link_libraries(modified_tls_random INTERFACE
   fountain_code_lib
   cbprng_lib
-  rand64_lib
+  rand_lib
   uint128_lib
   generic_utils
 )
@@ -131,6 +131,7 @@ foreach(TGT ${ALL_TARGETS})
   )
 endforeach()
 
+# fountain_code module tests
 add_custom_command(
   TARGET fountain_test POST_BUILD
   COMMAND ${CMAKE_BINARY_DIR}/tests/fountain_test
@@ -141,6 +142,7 @@ add_test(
   COMMAND ${CMAKE_BINARY_DIR}/tests/fountain_test
 )
 
+# cbprng module tests
 add_custom_command(
   TARGET cbprng_test POST_BUILD
   COMMAND ${CMAKE_BINARY_DIR}/tests/cbprng_test

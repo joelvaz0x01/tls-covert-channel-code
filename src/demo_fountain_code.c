@@ -15,8 +15,8 @@
 #include <fountain_code/encoder.h>
 #include <fountain_code/settings.h>
 #include <fountain_code/utils.h>
-#include <rand64/rand64.h>
-#include <rand64/system.h>
+#include <rand/rand64.h>
+#include <rand/system.h>
 #include <utils/utils.h>
 
 /**

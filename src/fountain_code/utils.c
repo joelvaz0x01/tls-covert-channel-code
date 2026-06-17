@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <rand64/rand64.h>
+#include <rand/rand64.h>
 
 #include "settings.h"
 #include "utils.h"

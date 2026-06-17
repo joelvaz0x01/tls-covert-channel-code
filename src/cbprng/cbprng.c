@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <rand64/rand64.h>
+#include <rand/rand64.h>
 
 #include "cbprng.h"
 
