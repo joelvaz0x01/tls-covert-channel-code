@@ -52,6 +52,7 @@ add_compile_definitions(
 add_subdirectory(src/cbprng)
 add_subdirectory(src/fountain_code)
 add_subdirectory(src/rand64)
+add_subdirectory(src/uint128)
 add_subdirectory(src/utils)
 
 
@@ -61,6 +62,7 @@ target_link_libraries(modified_tls_random INTERFACE
   fountain_code_lib
   cbprng_lib
   rand64_lib
+  uint128_lib
   generic_utils
 )
 
