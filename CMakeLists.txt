@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.24)
 
 project(tls-client-random-fountain-code C)
 
@@ -49,6 +49,7 @@ add_compile_definitions(
 )
 
 # Subdirectories
+add_subdirectory(rand_study/lcg_multiplier_finder)
 add_subdirectory(src/cbprng)
 add_subdirectory(src/fountain_code)
 add_subdirectory(src/rand)
