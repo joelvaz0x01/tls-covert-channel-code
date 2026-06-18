@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <rand/rand64.h>
+#include <rand/rand128.h>
 
 #include "cbprng.h"
 
@@ -42,7 +42,7 @@ static bool avalanche_analysis(generator_t* g) {
 void pseudo_random_permutation(int n, perm_val_t* a) {
   for (int idx = 0; idx < n; idx++) a[idx] = (perm_val_t)idx;
   for (int idx = n - 1; idx > 0; idx--) { /* 0 <= swap_idx <= idx */
-    int swap_idx = (int)(rand64_between(0, (uint64_t)idx));
+    int swap_idx = (int)(rand128_between(0, (uint64_t)idx));
     perm_val_t swap_data = a[swap_idx];
     a[swap_idx] = a[idx];
     a[idx] = swap_data;
