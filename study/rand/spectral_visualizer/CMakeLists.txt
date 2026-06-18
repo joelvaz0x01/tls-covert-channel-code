@@ -13,7 +13,6 @@ set_target_properties(rand64_spectral_visualizer rand128_spectral_visualizer PRO
   RUNTIME_OUTPUT_DIRECTORY ${SPECTRAL_OUT_DIR}
 )
 
-# Generate 2D PDF for rand64
 add_custom_command(
   TARGET rand64_spectral_visualizer POST_BUILD
   COMMAND ${SPECTRAL_OUT_DIR}/rand64_spectral_visualizer 2d 1000
@@ -25,7 +24,6 @@ add_custom_command(
   COMMENT "Generating spectral_2d_64.pdf..."
 )
 
-# Generate 3D PDF for rand64
 add_custom_command(
   TARGET rand64_spectral_visualizer POST_BUILD
   COMMAND ${SPECTRAL_OUT_DIR}/rand64_spectral_visualizer 3d 1000
@@ -37,7 +35,6 @@ add_custom_command(
   COMMENT "Generating spectral_3d_64.pdf..."
 )
 
-# Generate 2D PDF for rand128
 add_custom_command(
   TARGET rand128_spectral_visualizer POST_BUILD
   COMMAND ${SPECTRAL_OUT_DIR}/rand128_spectral_visualizer 2d 1000
@@ -49,7 +46,6 @@ add_custom_command(
   COMMENT "Generating spectral_2d_128.pdf..."
 )
 
-# Generate 3D PDF for rand128
 add_custom_command(
   TARGET rand128_spectral_visualizer POST_BUILD
   COMMAND ${SPECTRAL_OUT_DIR}/rand128_spectral_visualizer 3d 1000

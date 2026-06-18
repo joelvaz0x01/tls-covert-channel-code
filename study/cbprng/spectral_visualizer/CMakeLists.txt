@@ -10,7 +10,6 @@ set_target_properties(cbprng_spectral_visualizer PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY ${SPECTRAL_OUT_DIR}
 )
 
-# Generate 2D PDF for cbprng
 add_custom_command(
   TARGET cbprng_spectral_visualizer POST_BUILD
   COMMAND ${SPECTRAL_OUT_DIR}/cbprng_spectral_visualizer 2d 1000
@@ -22,7 +21,6 @@ add_custom_command(
   COMMENT "Generating cbprng_spectral_2d.pdf..."
 )
 
-# Generate 3D PDF for cbprng
 add_custom_command(
   TARGET cbprng_spectral_visualizer POST_BUILD
   COMMAND ${SPECTRAL_OUT_DIR}/cbprng_spectral_visualizer 3d 1000
