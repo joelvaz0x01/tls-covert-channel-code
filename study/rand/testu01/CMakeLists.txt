@@ -24,5 +24,5 @@ target_include_directories(rand128_bigcrush PRIVATE
 target_link_libraries(rand128_bigcrush PRIVATE rand_lib ${TESTU01_LIBRARY})
 
 set_target_properties(rand64_bigcrush rand128_bigcrush PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/study
+  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/study/rand/testu01
 )
