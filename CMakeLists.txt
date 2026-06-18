@@ -49,13 +49,13 @@ add_compile_definitions(
 )
 
 # Subdirectories
-add_subdirectory(study/rand/lcg_multiplier_finder)
 add_subdirectory(src/cbprng)
 add_subdirectory(src/fountain_code)
 add_subdirectory(src/rand)
 add_subdirectory(src/uint128)
 add_subdirectory(src/utils)
-
+add_subdirectory(study/rand/lcg_multiplier_finder)
+add_subdirectory(study/rand/testu01)
 
 # main library aggregation
 add_library(modified_tls_random INTERFACE)
