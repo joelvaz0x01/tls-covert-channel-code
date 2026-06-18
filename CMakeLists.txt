@@ -7,7 +7,6 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-
 # output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)  # executables
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)  # shared libs (.so / .dylib)
@@ -54,8 +53,7 @@ add_subdirectory(src/fountain_code)
 add_subdirectory(src/rand)
 add_subdirectory(src/uint128)
 add_subdirectory(src/utils)
-add_subdirectory(study/rand/lcg_multiplier_finder)
-add_subdirectory(study/rand/testu01)
+add_subdirectory(study)
 
 # main library aggregation
 add_library(modified_tls_random INTERFACE)

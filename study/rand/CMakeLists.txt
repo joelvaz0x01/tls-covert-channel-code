@@ -1,0 +1,3 @@
+add_subdirectory(lcg_multiplier_finder)
+add_subdirectory(spectral_visualizer)
+add_subdirectory(testu01)
