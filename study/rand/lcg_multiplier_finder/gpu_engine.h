@@ -8,6 +8,11 @@
 
 #include <stdio.h>
 
+/**
+ * Formats and prints the elapsed time in hours, minutes, and seconds.
+ *
+ * @param total_seconds The total elapsed time in seconds.
+ */
 static inline void format_and_print_time(double total_seconds) {
   int hours = (int)(total_seconds / 3600);
   int mins = (int)((total_seconds - hours * 3600) / 60);
@@ -18,12 +23,18 @@ static inline void format_and_print_time(double total_seconds) {
 /**
  * Runs the 64-bit GPU-accelerated search for optimal LCG multipliers.
  * Candidates pass a fast GPU filter and are validated via CPU spectral test.
+ *
+ * This code was optimized with AI assistance to maximize GPU performance
+ * by identifying the GPU and adjusting the launch configuration accordingly.
  */
 void run_64_bit_search(void);
 
 /**
  * Runs the 128-bit GPU-accelerated search for optimal LCG multipliers.
  * Candidates pass a fast GPU filter and are validated via CPU spectral test.
+ *
+ * This code was optimized with AI assistance to maximize GPU performance
+ * by identifying the GPU and adjusting the launch configuration accordingly.
  */
 void run_128_bit_search(void);
 

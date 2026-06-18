@@ -7,10 +7,13 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "gpu_config.h"
 #include "gpu_engine.h"
 #include "settings.h"
 #include "spectral_test.h"
 #include "uint128_ops.cuh"
+
+#if LCG_UINT128_HAS_NATIVE
 
 /**
  * Gets the n-th bit of a 128-bit unsigned integer.
@@ -19,22 +22,72 @@
  * @param n The bit index (0-127).
  * @return The value of the n-th bit (0 or 1).
  */
-static inline int get_bit128(uint128_t v, int n) {
-  return (n >= 64) ? (int)((v.hi >> (n - 64)) & 1) : (int)((v.lo >> n) & 1);
+static inline uint64_t get_lo128(uint128_t v) {
+  return (uint64_t)v;
 }
 
 /**
- * Sets the n-th bit of a 128-bit unsigned integer to 1.
+ * Gets the high 64 bits of a 128-bit unsigned integer.
  *
- * @param v Pointer to the 128-bit unsigned integer.
- * @param n The bit index (0-127).
+ * @param v The 128-bit unsigned integer.
+ * @return The high 64 bits of the integer.
  */
-static inline void set_bit128(uint128_t* v, int n) {
-  if (n >= 64)
-    v->hi |= (1ULL << (n - 64));
-  else
-    v->lo |= (1ULL << n);
+static inline uint64_t get_hi128(uint128_t v) {
+  return (uint64_t)(v >> 64);
 }
+
+/**
+ * Constructs a 128-bit unsigned integer from a high and low 64-bit values.
+ *
+ * @param hi The high 64-bit value.
+ * @param lo The low 64-bit value.
+ * @return The 128-bit unsigned integer.
+ */
+static inline uint128_t make128(uint64_t hi, uint64_t lo) {
+  return ((uint128_t)hi << 64) | (uint128_t)lo;
+}
+
+#else
+
+/**
+ * Gets the n-th bit of a 128-bit unsigned integer.
+ *
+ * @param v The 128-bit unsigned integer.
+ * @param n The bit index (0-127).
+ * @return The value of the n-th bit (0 or 1).
+ */
+static inline uint64_t get_lo128(uint128_t v) {
+  return v.lo;
+}
+
+/**
+ * Gets the n-th bit of a 128-bit unsigned integer.
+ *
+ * @param v The 128-bit unsigned integer.
+ * @param n The bit index (0-127).
+ * @return The value of the n-th bit (0 or 1).
+ */
+static inline uint64_t get_hi128(uint128_t v) {
+  return v.hi;
+}
+
+/**
+ * Constructs a 128-bit unsigned integer from a high and low 64-bit values.
+ *
+ * @param hi The high 64-bit value.
+ * @param lo The low 64-bit value.
+ * @return The 128-bit unsigned integer.
+ */
+static inline uint128_t make128(uint64_t hi, uint64_t lo) {
+  uint128_t r;
+  r.hi = hi;
+  r.lo = lo;
+  return r;
+}
+
+#endif
+
+#if LCG_UINT128_HAS_NATIVE
 
 /**
  * Divides a 128-bit unsigned integer by 10 and returns the remainder.
@@ -44,7 +97,55 @@ static inline void set_bit128(uint128_t* v, int n) {
  * @return The remainder (0-9).
  */
 static inline unsigned int divmod10_128(uint128_t* v) {
-  uint128_t q = {0, 0};
+  unsigned int rem = (unsigned int)(*v % 10);
+  *v = *v / 10;
+  return rem;
+}
+
+#else
+
+/**
+ * Gets the n-th bit of a 128-bit unsigned integer.
+ *
+ * This code was been generated with AI assistance.
+ *
+ * @param v The 128-bit unsigned integer.
+ * @param n The bit index (0-127).
+ * @return The value of the n-th bit (0 or 1).
+ */
+static inline int get_bit128(uint128_t v, int n) {
+  if (n >= 64)
+    return (int)((v >> (n - 64)) & 1);
+  else
+    return (int)((v >> n) & 1);
+}
+
+/**
+ * Sets the n-th bit of a 128-bit unsigned integer to 1.
+ *
+ * This code was been generated with AI assistance.
+ *
+ * @param v Pointer to the 128-bit unsigned integer.
+ * @param n The bit index (0-127).
+ */
+static inline void set_bit128(uint128_t* v, int n) {
+  if (n >= 64)
+    *v |= ((uint128_t)1 << (n - 64));
+  else
+    *v |= ((uint128_t)1 << n);
+}
+
+/**
+ * Divides a 128-bit unsigned integer by 10 and returns the remainder.
+ * using bit-by-bit long division.
+ *
+ * This code was been generated with AI assistance.
+ *
+ * @param v Pointer to the 128-bit unsigned integer (updated to quotient).
+ * @return The remainder (0-9).
+ */
+static inline unsigned int divmod10_128(uint128_t* v) {
+  uint128_t q = 0;
   unsigned int rem = 0;
   for (int i = 127; i >= 0; i--) {
     rem = (rem << 1) | get_bit128(*v, i);
@@ -57,8 +158,12 @@ static inline unsigned int divmod10_128(uint128_t* v) {
   return rem;
 }
 
+#endif
+
 /**
  * Prints a 128-bit unsigned integer in decimal format.
+ *
+ * This code was been generated with AI assistance.
  *
  * @param v The 128-bit unsigned integer to print.
  */
@@ -82,6 +187,9 @@ static void print128_dec(uint128_t v) {
  *
  * This uses the Euclidean algorithm to calculate the continued
  * fraction expansion of lambda to ensure good 2D spectral quality.
+ *
+ * Based on the article "Optimal multipliers for pseudo-random number
+ * generation by the linear congruential method" by Borosh and Niederreiter
  *
  * @param lambda The 128-bit unsigned integer to check.
  * @return 1 if lambda is an optimal exact multiplier, 0 otherwise.
@@ -112,11 +220,9 @@ static __device__ int is_optimal_exact_128(uint128_t lambda) {
  * @param d_candidates A device pointer to store the found candidates.
  * @param d_count A device pointer to store the count of found candidates.
  */
-static __global__ void search_kernel_128(uint128_t start_lambda, uint128_t* d_candidates, int* d_count) {
+static __global__ __launch_bounds__(256, 2) void search_kernel_128(uint128_t start_lambda, uint128_t* d_candidates, int* d_count) {
   unsigned long long idx = blockIdx.x * blockDim.x + threadIdx.x;
-  uint128_t offset;
-  offset.hi = 0;
-  offset.lo = idx * 8;
+  uint128_t offset = (uint128_t)idx * 8;
 
   uint128_t my_lambda = add128(start_lambda, offset);
 
@@ -139,7 +245,7 @@ static __global__ void search_kernel_128(uint128_t start_lambda, uint128_t* d_ca
 static void save_checkpoint_128(const char* filename, uint128_t lambda, unsigned long long batches, double accum_time) {
   FILE* f = fopen(filename, "w");
   if (f) {
-    fprintf(f, "%llx %llx %llu %f\n", (unsigned long long)lambda.hi, (unsigned long long)lambda.lo, batches, accum_time);
+    fprintf(f, "%llx %llx %llu %f\n", (unsigned long long)get_hi128(lambda), (unsigned long long)get_lo128(lambda), batches, accum_time);
     fclose(f);
   }
 }
@@ -158,8 +264,7 @@ static bool load_checkpoint_128(const char* filename, uint128_t* lambda, unsigne
   if (f) {
     unsigned long long hi, lo;
     if (fscanf(f, "%llx %llx %llu %lf", &hi, &lo, batches, accum_time) == 4) {
-      lambda->hi = hi;
-      lambda->lo = lo;
+      *lambda = make128(hi, lo);
       fclose(f);
       return true;
     }
@@ -171,6 +276,9 @@ static bool load_checkpoint_128(const char* filename, uint128_t* lambda, unsigne
 void run_128_bit_search(void) {
   printf("--- 128-Bit Mode: GPU Fast-Filter & CPU Spectral Test ---\n\n");
 
+  GpuConfig cfg = optimize_launch_config(search_kernel_128);
+  print_gpu_info(cfg);
+
   uint128_t start_lambda;
   unsigned long long batches = 0;
   double accumulated_time = 0.0;
@@ -178,58 +286,81 @@ void run_128_bit_search(void) {
 
   if (load_checkpoint_128(checkpoint_file, &start_lambda, &batches, &accumulated_time)) {
     printf("Found checkpoint! Resuming search...\n");
-    printf("Starting from: 0x%016llx%016llx\n", (unsigned long long)start_lambda.hi, (unsigned long long)start_lambda.lo);
+    printf("Starting from: 0x%016llx%016llx\n", (unsigned long long)get_hi128(start_lambda), (unsigned long long)get_lo128(start_lambda));
     printf("Time previously spent: ");
     format_and_print_time(accumulated_time);
     printf("\n\n");
   } else {
     printf("No checkpoint found. Starting fresh from Golden Ratio...\n\n");
-    start_lambda.hi = GOLDEN_RATIO_128_HI;
-    start_lambda.lo = GOLDEN_RATIO_128_LO;
+    start_lambda = make128(GOLDEN_RATIO_128_HI, GOLDEN_RATIO_128_LO);
   }
 
-  int h_count = 0;
-  int* d_count;
-  uint128_t* d_candidates;
-  uint128_t h_candidates[MAX_CANDIDATES_PER_BATCH];
+  int* d_count[2];
+  uint128_t* d_candidates[2];
+  cudaStream_t streams[2];
 
-  cudaMalloc((void**)&d_count, sizeof(int));
-  cudaMalloc((void**)&d_candidates, MAX_CANDIDATES_PER_BATCH * sizeof(uint128_t));
+  for (int i = 0; i < 2; i++) {
+    cudaMalloc((void**)&d_count[i], sizeof(int));
+    cudaMalloc((void**)&d_candidates[i], MAX_CANDIDATES_PER_BATCH * sizeof(uint128_t));
+    cudaStreamCreate(&streams[i]);
+  }
 
-  unsigned long long threads_per_batch = (unsigned long long)BLOCKS_PER_GRID * THREADS_PER_BLOCK;
+  int* h_count[2];
+  uint128_t* h_candidates[2];
+  for (int i = 0; i < 2; i++) {
+    cudaError_t err1 = cudaMallocHost((void**)&h_count[i], sizeof(int));
+    cudaError_t err2 = cudaMallocHost((void**)&h_candidates[i], MAX_CANDIDATES_PER_BATCH * sizeof(uint128_t));
+    if (err1 != cudaSuccess || err2 != cudaSuccess) {
+      fprintf(stderr, "Error: cudaMallocHost failed: %s\n", cudaGetErrorName(err1 != cudaSuccess ? err1 : err2));
+      fprintf(stderr, "Falling back to malloc (pinned memory unavailable)\n");
+      if (err1 != cudaSuccess) h_count[i] = (int*)malloc(sizeof(int));
+      if (err2 != cudaSuccess) h_candidates[i] = (uint128_t*)malloc(MAX_CANDIDATES_PER_BATCH * sizeof(uint128_t));
+    }
+    h_count[i][0] = 0;
+  }
 
-  uint128_t lambda_stride_per_batch;
-  lambda_stride_per_batch.hi = 0;
-  lambda_stride_per_batch.lo = threads_per_batch * 8;
+  uint128_t lambda_stride_per_batch = (uint128_t)compute_batch_stride(cfg);
+  int cur = 0;
 
   time_t session_start_time = time(NULL);
+  time_t last_checkpoint_time = session_start_time;
+  unsigned long long last_batches = batches;
   bool found = false;
 
+  cudaMemsetAsync(d_count[cur], 0, sizeof(int), streams[cur]);
+  search_kernel_128<<<cfg.grid_size, cfg.block_size, 0, streams[cur]>>>(start_lambda, d_candidates[cur], d_count[cur]);
+  cudaMemcpyAsync(h_count[cur], d_count[cur], sizeof(int), cudaMemcpyDeviceToHost, streams[cur]);
+  cudaMemcpyAsync(h_candidates[cur], d_candidates[cur], MAX_CANDIDATES_PER_BATCH * sizeof(uint128_t), cudaMemcpyDeviceToHost, streams[cur]);
+  cudaStreamSynchronize(streams[cur]);
+
   while (!found) {
-    h_count = 0;
-    cudaMemcpy(d_count, &h_count, sizeof(int), cudaMemcpyHostToDevice);
+    int next = 1 - cur;
+    uint128_t next_lambda = add128(start_lambda, lambda_stride_per_batch);
 
-    search_kernel_128<<<BLOCKS_PER_GRID, THREADS_PER_BLOCK>>>(start_lambda, d_candidates, d_count);
-    cudaDeviceSynchronize();
+    cudaMemsetAsync(d_count[next], 0, sizeof(int), streams[next]);
+    search_kernel_128<<<cfg.grid_size, cfg.block_size, 0, streams[next]>>>(next_lambda, d_candidates[next], d_count[next]);
 
-    cudaMemcpy(&h_count, d_count, sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpyAsync(h_count[cur], d_count[cur], sizeof(int), cudaMemcpyDeviceToHost, streams[cur]);
+    cudaMemcpyAsync(h_candidates[cur], d_candidates[cur], MAX_CANDIDATES_PER_BATCH * sizeof(uint128_t), cudaMemcpyDeviceToHost, streams[cur]);
+    cudaStreamSynchronize(streams[cur]);
 
-    if (h_count > 0) {
-      int process_count = (h_count > MAX_CANDIDATES_PER_BATCH) ? MAX_CANDIDATES_PER_BATCH : h_count;
-      cudaMemcpy(h_candidates, d_candidates, process_count * sizeof(uint128_t), cudaMemcpyDeviceToHost);
-
+    if (*h_count[cur] > 0) {
+      int process_count = (*h_count[cur] > MAX_CANDIDATES_PER_BATCH) ? MAX_CANDIDATES_PER_BATCH : *h_count[cur];
       for (int i = 0; i < process_count; i++) {
-        if (passes_higher_dimensions_128(h_candidates[i])) {
+        if (passes_higher_dimensions_128(h_candidates[cur][i])) {
           double total_time = accumulated_time + difftime(time(NULL), session_start_time);
 
           printf("\n==========================================\n");
           printf("SUCCESS! Found 128-bit Multiplier passing ALL dimensions!\n");
-          printf("Lambda (Hex): 0x%016llx%016llx\n", (unsigned long long)h_candidates[i].hi, (unsigned long long)h_candidates[i].lo);
+          printf("Lambda (Hex): 0x%016llx%016llx\n", (unsigned long long)get_hi128(h_candidates[cur][i]), (unsigned long long)get_lo128(h_candidates[cur][i]));
+          fflush(stdout);
           printf("Lambda (Dec): ");
-          print128_dec(h_candidates[i]);
+          print128_dec(h_candidates[cur][i]);
+          fflush(stdout);
           printf("\n\nTOTAL SEARCH TIME: ");
           format_and_print_time(total_time);
           printf("\n==========================================\n");
+          fflush(stdout);
 
           found = true;
           remove(checkpoint_file);
@@ -238,24 +369,33 @@ void run_128_bit_search(void) {
       }
     }
 
-    if (found) break;
-
-    start_lambda = add128(start_lambda, lambda_stride_per_batch);
+    cur = next;
+    start_lambda = next_lambda;
     batches++;
 
-    if (batches % CHECKPOINT_INTERVAL == 0) {
+    if (!found && batches % CHECKPOINT_INTERVAL == 0) {
       double current_session_time = difftime(time(NULL), session_start_time);
       save_checkpoint_128(checkpoint_file, start_lambda, batches, accumulated_time + current_session_time);
 
-      if (current_session_time > 0) {
-        unsigned long long total_checked = batches * threads_per_batch;
-        double speed_m_sec = (total_checked / 1000000.0) / current_session_time;
+      double interval_time = difftime(time(NULL), last_checkpoint_time);
+      if (interval_time > 0) {
+        unsigned long long interval_checked = (batches - last_batches) * cfg.threads_per_batch;
+        unsigned long long total_checked = batches * cfg.threads_per_batch;
+        double speed_m_sec = (interval_checked / 1000000.0) / interval_time;
         printf("\rChecked %llu million candidates... (Speed: %.2f M/sec)   ", total_checked / 1000000, speed_m_sec);
         fflush(stdout);
       }
+      last_batches = batches;
+      last_checkpoint_time = time(NULL);
     }
   }
 
-  cudaFree(d_candidates);
-  cudaFree(d_count);
+  cudaDeviceSynchronize();
+  for (int i = 0; i < 2; i++) {
+    cudaFreeHost(h_count[i]);
+    cudaFreeHost(h_candidates[i]);
+    cudaFree(d_candidates[i]);
+    cudaFree(d_count[i]);
+    cudaStreamDestroy(streams[i]);
+  }
 }

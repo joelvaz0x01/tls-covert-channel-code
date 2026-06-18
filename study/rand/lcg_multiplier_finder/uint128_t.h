@@ -6,6 +6,16 @@
 #ifndef LCG_MULT_FINDER_UINT128_T_H
 #define LCG_MULT_FINDER_UINT128_T_H
 
+#if defined(__SIZEOF_INT128__)
+
+#define LCG_UINT128_HAS_NATIVE 1
+
+typedef unsigned __int128 uint128_t;
+
+#else
+
+#define LCG_UINT128_USE_FALLBACK 1
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,6 +34,8 @@ typedef struct {
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
 #endif /* LCG_MULT_FINDER_UINT128_T_H */
