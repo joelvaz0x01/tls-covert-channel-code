@@ -49,7 +49,7 @@ add_compile_definitions(
 )
 
 # Subdirectories
-add_subdirectory(rand_study/lcg_multiplier_finder)
+add_subdirectory(study/rand/lcg_multiplier_finder)
 add_subdirectory(src/cbprng)
 add_subdirectory(src/fountain_code)
 add_subdirectory(src/rand)

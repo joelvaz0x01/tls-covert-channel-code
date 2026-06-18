@@ -38,3 +38,7 @@ set_target_properties(lcg_multiplier_finder PROPERTIES
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(lcg_multiplier_finder PRIVATE -Wno-pedantic)
 endif()
+
+set_target_properties(lcg_multiplier_finder PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/study
+)
