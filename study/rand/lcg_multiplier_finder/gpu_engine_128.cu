@@ -15,6 +15,8 @@
 
 #if LCG_UINT128_HAS_NATIVE
 
+#include <stdint.h>
+
 /**
  * Gets the n-th bit of a 128-bit unsigned integer.
  *
