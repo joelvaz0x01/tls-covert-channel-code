@@ -1,4 +1,4 @@
-add_executable(cbprng_spectral_visualizer spectral_visualizer.c)
+add_executable(cbprng_spectral_visualizer cbprng_spectral_visualizer.c)
 
 target_link_libraries(cbprng_spectral_visualizer PRIVATE cbprng_lib rand_lib m)
 

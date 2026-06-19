@@ -34,7 +34,7 @@ static void write_dat_3d(const char* path, double* x, size_t n) {
   fclose(f);
 }
 
-static void write_m_2d(const char* m_path, const char* dat_name, const char* pdf_name) {
+static void write_m_2d(const char* m_path, const char* dat_name, const char* pdf_name, size_t n) {
   FILE* f = fopen(m_path, "w");
   if (!f) {
     perror(m_path);
@@ -50,7 +50,7 @@ static void write_m_2d(const char* m_path, const char* dat_name, const char* pdf
           "set(gcf, 'PaperSize', [24 16]);\n"
           "set(gcf, 'PaperPosition', [1 1 22 14]);\n"
           "plot(x, y, 'b.', 'MarkerSize', 8);\n"
-          "title('Visual Spectral Test - rand128 (2D)');\n"
+          "title({'Visual Spectral Test - rand128 (2D)', 'first %zu values'});\n"
           "grid on;\n"
           "xlabel('x_{i}');\n"
           "ylabel('x_{i+1}');\n"
@@ -58,11 +58,12 @@ static void write_m_2d(const char* m_path, const char* dat_name, const char* pdf
           "xticks(0:0.1:1); yticks(0:0.1:1); zticks(0:0.1:1);\n"
           "print('-dpdf', '%s');\n",
           dat_name,
+          n,
           pdf_name);
   fclose(f);
 }
 
-static void write_m_3d(const char* m_path, const char* dat_name, const char* pdf_name) {
+static void write_m_3d(const char* m_path, const char* dat_name, const char* pdf_name, size_t n) {
   FILE* f = fopen(m_path, "w");
   if (!f) {
     perror(m_path);
@@ -79,7 +80,7 @@ static void write_m_3d(const char* m_path, const char* dat_name, const char* pdf
           "set(gcf, 'PaperSize', [24 16]);\n"
           "set(gcf, 'PaperPosition', [1 1 22 14]);\n"
           "plot3(x, y, z, 'b.', 'MarkerSize', 8);\n"
-          "title('Visual Spectral Test - rand128 (3D)');\n"
+          "title({'Visual Spectral Test - rand128 (3D)', 'first %zu values'});\n"
           "grid on;\n"
           "xlabel('x_{i}');\n"
           "ylabel('x_{i+1}');\n"
@@ -89,6 +90,7 @@ static void write_m_3d(const char* m_path, const char* dat_name, const char* pdf
           "view(60, 30);\n"
           "print('-dpdf', '%s');\n",
           dat_name,
+          n,
           pdf_name);
   fclose(f);
 }
@@ -112,16 +114,16 @@ int main(int argc, char* argv[]) {
   }
 
   for (size_t i = 0; i < n; i++) {
-    x[i] = (double)rand128() / (double)UINT64_MAX;
+    x[i] = (double)rand128() / (double)RAND128_MAX;
   }
 
   if (is_3d) {
     write_dat_3d("rand128_spectral_data_3d.dat", x, n);
-    write_m_3d("rand128_spectral_plot_3d.m", "rand128_spectral_data_3d.dat", "rand128_spectral_3d.pdf");
+    write_m_3d("rand128_spectral_plot_3d.m", "rand128_spectral_data_3d.dat", "rand128_spectral_3d.pdf", n);
     printf("Run: octave --no-gui rand128_spectral_plot_3d.m\n");
   } else {
     write_dat_2d("rand128_spectral_data_2d.dat", x, n);
-    write_m_2d("rand128_spectral_plot_2d.m", "rand128_spectral_data_2d.dat", "rand128_spectral_2d.pdf");
+    write_m_2d("rand128_spectral_plot_2d.m", "rand128_spectral_data_2d.dat", "rand128_spectral_2d.pdf", n);
     printf("Run: octave --no-gui rand128_spectral_plot_2d.m\n");
   }
 
