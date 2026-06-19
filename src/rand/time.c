@@ -20,9 +20,7 @@ void seed128_time(void) {
   uint64_t t = (uint64_t)(uint32_t)time(NULL);
   uint64_t c = (uint64_t)(uint32_t)clock();
 
-  uint128_t s;
-  s.lo = fmix64(t | (c << 32));
-  s.hi = fmix64(c | (t << 32));
+  uint32_t s = U128(fmix64(t | (c << 32)), fmix64(c | (t << 32)));
 
   srand128(s);
 }

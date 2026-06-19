@@ -11,7 +11,7 @@
 #if LCG_UINT128_HAS_NATIVE
 
 /**
- * Adds two 128-bit unsigned integers, handling carry correctly.
+ * Adds two 128-bit unsigned integers.
  *
  * @param a The first 128-bit unsigned integer.
  * @param b The second 128-bit unsigned integer.
@@ -22,7 +22,7 @@ __device__ __host__ __forceinline__ uint128_t add128(uint128_t a, uint128_t b) {
 }
 
 /**
- * Subtracts two 128-bit unsigned integers, handling borrow correctly.
+ * Subtracts two 128-bit unsigned integers.
  *
  * @param a The first 128-bit unsigned integer.
  * @param b The second 128-bit unsigned integer.
@@ -33,7 +33,7 @@ __device__ __host__ __forceinline__ uint128_t sub128(uint128_t a, uint128_t b) {
 }
 
 /**
- * Negates a 128-bit unsigned integer (two's complement).
+ * Negates a 128-bit unsigned integer.
  *
  * @param a The 128-bit unsigned integer to negate.
  * @return The negated value of a.

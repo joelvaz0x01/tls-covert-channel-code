@@ -8,6 +8,8 @@
 
 #include <stdint.h>
 
+#include <uint128/uint128.h>
+
 /*
  * 128-bit LCG values; the multiplier derived via
  * Borosh-Niederreiter methodology where K <= 5.
@@ -17,6 +19,8 @@
  */
 #define LCG_MUL_HI UINT64_C(11400714819323198485)
 #define LCG_MUL_LO UINT64_C(17554116968532437405)
-#define LCG_ADD    UINT64_C(1)
+
+#define LCG_MUL    U128(LCG_MUL_LO, LCG_MUL_HI)
+#define LCG_ADD    U128(1, 0)
 
 #endif /* RAND_SETTINGS_H */

@@ -13,6 +13,8 @@
 #include <unistd.h>
 #endif
 
+#include <uint128/uint128.h>
+
 #include "rand128.h"
 #include "rand64.h"
 #include "system.h"
@@ -44,7 +46,7 @@ void seed64_system(void) {
 }
 
 void seed128_system(void) {
-  uint128_t s = {0, 0};
+  uint128_t s = U128(0, 0);
 
   if (!get_system_seed(&s, sizeof(s))) {
     seed128_time();

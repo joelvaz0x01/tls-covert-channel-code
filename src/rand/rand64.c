@@ -7,6 +7,7 @@
  * Partially adapted from glibc.
  */
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <uint128/uint128.h>
@@ -15,15 +16,14 @@
 #include "settings.h"
 #include "utils.h"
 
-static uint128_t state = {0, 0};
-static int initialized = 0;
+static uint128_t state = U128(0, 0);
+static bool initialized = false;
 
 void srand64(uint64_t s) {
   if (!s) s = 1; /* avoid zero seed */
 
-  state.lo = s;
-  state.hi = fmix64(s);
-  initialized = 1;
+  state = U128(s, fmix64(s));
+  initialized = true;
 }
 
 uint64_t rand64(void) {
@@ -31,11 +31,8 @@ uint64_t rand64(void) {
     srand64(1);
   }
 
-  static const uint128_t mul = {LCG_MUL_LO, LCG_MUL_HI};
-  static const uint128_t add = {LCG_ADD, 0};
-  state = lcg128(state, mul, add);
-
-  return state.hi; /* return upper 64 bits */
+  state = lcg128(state, LCG_MUL, LCG_ADD);
+  return U128_HI(state); /* return upper 64 bits */
 }
 
 uint64_t rand64_between(uint64_t min, uint64_t max) {

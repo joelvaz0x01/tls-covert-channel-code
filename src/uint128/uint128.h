@@ -6,15 +6,54 @@
 #ifndef UINT128_H
 #define UINT128_H
 
+#if defined(__SIZEOF_INT128__)
+
+#define UINT128_NATIVE 1
+
+__extension__ typedef unsigned __int128 uint128_t;
+
+#define U128(lo, hi) (((uint128_t)(lo)) | ((uint128_t)(hi) << 64))
+#define U128_LO(v)   ((uint64_t)(v))
+#define U128_HI(v)   ((uint64_t)((v) >> 64))
+
+/**
+ * Adds two 128-bit unsigned integers.
+ *
+ * @param a The first 128-bit unsigned integer.
+ * @param b The second 128-bit unsigned integer.
+ * @return The result of a + b.
+ */
+static inline uint128_t add128(uint128_t a, uint128_t b) {
+  return a + b;
+}
+
+/**
+ * Multiplies two 128-bit unsigned integers.
+ *
+ * @param a The first 128-bit unsigned integer.
+ * @param b The second 128-bit unsigned integer.
+ * @return The result of a * b.
+ */
+static inline uint128_t mul128(uint128_t a, uint128_t b) {
+  return a * b;
+}
+
+#else
+
 #include <stdint.h>
+
+#define UINT128_FALLBACK 1
+
+#define U128(lo, hi)     ((uint128_t){(lo), (hi)})
+#define U128_LO(v)       ((v).lo)
+#define U128_HI(v)       ((v).hi)
 
 /**
  * @struct uint128_t
- * Portable 128-bit unsigned integer type using two 64-bit halves.
- * Compatible with platforms that do not provide __uint128_t (e.g. MSVC/Windows).
+ * Represents a 128-bit unsigned integer using two 64-bit unsigned integers.
  *
- * @var lo Lower 64 bits.
- * @var hi Upper 64 bits.
+ * @var lo The lower 64 bits of the 128-bit integer.
+ * @var hi The higher 64 bits of the 128-bit integer.
  */
 typedef struct {
   uint64_t lo;
@@ -24,19 +63,23 @@ typedef struct {
 /**
  * Adds two 128-bit values with carry propagation from lo to hi.
  *
- * @param a First operand.
- * @param b Second operand.
- * @return a + b as uint128_t.
+ * This code was been generated with AI assistance.
+ *
+ * @param a The first 128-bit unsigned integer.
+ * @param b The second 128-bit unsigned integer.
+ * @return The result of a + b.
  */
 static inline uint128_t add128(uint128_t a, uint128_t b) {
   uint128_t r;
   r.lo = a.lo + b.lo;
-  r.hi = a.hi + b.hi + (r.lo < a.lo); /* propagate carry */
+  r.hi = a.hi + b.hi + (r.lo < a.lo ? 1 : 0);
   return r;
 }
 
 /**
  * Returns the upper 64 bits of the full 128-bit product a * b.
+ *
+ * This code was been generated with AI assistance.
  *
  * @param a First 64-bit operand.
  * @param b Second 64-bit operand.
@@ -60,6 +103,8 @@ static inline uint64_t mulhi64(uint64_t a, uint64_t b) {
 /**
  * Multiplies two 128-bit values, returning the low 128 bits of the product.
  *
+ * This code was been generated with AI assistance.
+ *
  * @param a First operand.
  * @param b Second operand.
  * @return (a * b) mod 2^128.
@@ -74,5 +119,7 @@ static inline uint128_t mul128(uint128_t a, uint128_t b) {
 
   return r;
 }
+
+#endif
 
 #endif /* UINT128_H */

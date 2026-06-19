@@ -6,6 +6,8 @@
 #ifndef RAND_RAND128_H
 #define RAND_RAND128_H
 
+#include <stdint.h>
+
 #include <uint128/uint128.h>
 
 /* Maximum value returned by rand128() -> 2^64 - 1 */

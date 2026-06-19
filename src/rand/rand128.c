@@ -7,35 +7,34 @@
  * Partially adapted from glibc.
  */
 
+#include <stdbool.h>
+
 #include <uint128/uint128.h>
 
 #include "rand128.h"
 #include "settings.h"
 #include "utils.h"
 
-static uint128_t state = {0, 0};
-static uint128_t seed = {0, 0};
-static int initialized = 0;
+static uint128_t state = U128(0, 0);
+static uint128_t seed = U128(0, 0);
+static bool initialized = false;
 
 void srand128(uint128_t s) {
-  if (!s.lo && !s.hi) s.lo = 1; /* avoid zero seed */
+  if (!U128_LO(s) && !U128_HI(s)) s = U128(1, 0); /* avoid zero seed */
 
   seed = s;
   state = s;
-  initialized = 1;
+  initialized = true;
 }
 
 uint64_t rand128(void) {
   if (!initialized) {
-    uint128_t default_seed = {1, 0};
+    uint128_t default_seed = U128(1, 0);
     srand128(default_seed);
   }
 
-  static const uint128_t mul = {LCG_MUL_LO, LCG_MUL_HI};
-  static const uint128_t add = {LCG_ADD, 0};
-  state = lcg128(state, mul, add);
-
-  return state.hi; /* return upper 64 bits */
+  state = lcg128(state, LCG_MUL, LCG_ADD);
+  return U128_HI(state); /* return upper 64 bits */
 }
 
 uint64_t rand128_between(uint64_t min, uint64_t max) {

@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include <rand/rand128.h>
+#include <uint128/uint128.h>
 
 static void write_dat_2d(const char* path, double* x, size_t n) {
   FILE* f = fopen(path, "w");
@@ -101,7 +102,7 @@ int main(int argc, char* argv[]) {
 
   int is_3d = (strcmp(dim, "3d") == 0);
 
-  uint128_t seed = {42, 0};
+  uint128_t seed = U128(42, 0);
   srand128(seed);
 
   double* x = malloc(n * sizeof(double));

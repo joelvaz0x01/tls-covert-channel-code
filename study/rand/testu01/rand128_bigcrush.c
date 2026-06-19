@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #include <rand/rand128.h>
+#include <uint128/uint128.h>
 
 #include "bbattery.h"
 #include "unif01.h"
@@ -23,7 +24,7 @@ int main(void) {
     return 1;
   }
 
-  uint128_t seed = {42, 0};
+  uint128_t seed = U128(42, 0);
   srand128(seed);
 
   rand_fn = rand128;
