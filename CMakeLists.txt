@@ -47,33 +47,8 @@ add_compile_definitions(
   $<$<CONFIG:Release>:NDEBUG>
 )
 
-# Subdirectories
-add_subdirectory(src/cbprng)
-add_subdirectory(src/fountain_code)
-add_subdirectory(src/rand)
-add_subdirectory(src/uint128)
-add_subdirectory(src/utils)
+add_subdirectory(src)
 add_subdirectory(study)
-
-# main library aggregation
-add_library(modified_tls_random INTERFACE)
-target_link_libraries(modified_tls_random INTERFACE
-  fountain_code_lib
-  cbprng_lib
-  rand_lib
-  uint128_lib
-  generic_utils
-)
-
-# executables
-add_executable(encoder src/encoder.c)
-target_link_libraries(encoder PRIVATE modified_tls_random)
-
-add_executable(decoder src/decoder.c)
-target_link_libraries(decoder PRIVATE modified_tls_random)
-
-add_executable(fountain_code_demo src/demo_fountain_code.c)
-target_link_libraries(fountain_code_demo PRIVATE modified_tls_random m)
 
 # implementation tests
 enable_testing()
