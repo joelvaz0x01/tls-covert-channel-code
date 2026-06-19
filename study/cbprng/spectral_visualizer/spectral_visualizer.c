@@ -56,6 +56,7 @@ static void write_m_2d(const char* m_path, const char* dat_name, const char* pdf
           "xlabel('x_{i}');\n"
           "ylabel('x_{i+1}');\n"
           "xlim([0 1]); ylim([0 1]);\n"
+          "xticks(0:0.1:1); yticks(0:0.1:1); zticks(0:0.1:1);\n"
           "print('-dpdf', '%s');\n",
           dat_name,
           pdf_name);
@@ -85,6 +86,7 @@ static void write_m_3d(const char* m_path, const char* dat_name, const char* pdf
           "ylabel('x_{i+1}');\n"
           "zlabel('x_{i+2}');\n"
           "xlim([0 1]); ylim([0 1]); zlim([0 1]);\n"
+          "xticks(0:0.1:1); yticks(0:0.1:1); zticks(0:0.1:1);\n"
           "view(60, 30);\n"
           "print('-dpdf', '%s');\n",
           dat_name,

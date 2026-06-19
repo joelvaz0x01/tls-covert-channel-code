@@ -21,7 +21,7 @@ add_custom_command(
     rand64_spectral_data_2d.dat
     rand64_spectral_plot_2d.m
   WORKING_DIRECTORY ${SPECTRAL_OUT_DIR}
-  COMMENT "Generating spectral_2d_64.pdf..."
+  COMMENT "Generating rand64_spectral_2d.pdf..."
 )
 
 add_custom_command(
@@ -32,7 +32,7 @@ add_custom_command(
     rand64_spectral_data_3d.dat
     rand64_spectral_plot_3d.m
   WORKING_DIRECTORY ${SPECTRAL_OUT_DIR}
-  COMMENT "Generating spectral_3d_64.pdf..."
+  COMMENT "Generating rand64_spectral_3d.pdf..."
 )
 
 add_custom_command(
@@ -43,7 +43,7 @@ add_custom_command(
     rand128_spectral_data_2d.dat
     rand128_spectral_plot_2d.m
   WORKING_DIRECTORY ${SPECTRAL_OUT_DIR}
-  COMMENT "Generating spectral_2d_128.pdf..."
+  COMMENT "Generating rand128_spectral_2d.pdf..."
 )
 
 add_custom_command(
@@ -54,5 +54,5 @@ add_custom_command(
     rand128_spectral_data_3d.dat
     rand128_spectral_plot_3d.m
   WORKING_DIRECTORY ${SPECTRAL_OUT_DIR}
-  COMMENT "Generating spectral_3d_128.pdf..."
+  COMMENT "Generating rand128_spectral_3d.pdf..."
 )
