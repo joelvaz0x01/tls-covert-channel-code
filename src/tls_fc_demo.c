@@ -17,7 +17,7 @@
 #include <fountain_code/utils.h>
 #include <rand/rand64.h>
 #include <rand/system.h>
-#include <utils/utils.h>
+#include <utils/print.h>
 
 /**
  * Prints the given selector as a binary string of exactly n characters.
@@ -188,7 +188,7 @@ int main(void) {
   printf("[ Reconstructed blocks ]\n");
   bool all_ok = true;
   for (uint64_t i = 0; i < n; i++) {
-    bool ok = (memcmp(&out[i], &src[i], sizeof(block_t)) == 0);
+    bool ok = (0 == memcmp(&out[i], &src[i], sizeof(block_t)));
     if (!ok) all_ok = false;
     printf("  [%2" PRIu64 "]  hex: ", i);
     print_hex_bits(&out[i], FC_BLOCK_SIZE);

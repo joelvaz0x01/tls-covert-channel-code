@@ -3,23 +3,108 @@
  * Licensed under the Apache License 2.0
  */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef UTILS_UTILS_H
+#define UTILS_UTILS_H
+
+#include <stdint.h>
+#include <stdio.h>
+
+#include <cbprng/cbprng.h>
+#include <fountain_code/utils.h>
+
+#include "settings.h"
+
+#if USE_SYSTEM_RANDOM
+#include <rand/system.h>
+#else
+#include <rand/rand128.h>
+#endif
+
+extern generator_t cbprng;      /* cbprng state */
+extern mask_t counter_value;    /* counter value for cbprng */
+extern decoder_t* dec;          /* decoder state */
+extern block_t* buffer;         /* output buffer */
+extern uint64_t* k_list;        /* list of k indices for each block */
+extern packet_t* g_scratch_pkt; /* scratch packet for hot path */
 
 /**
- * Prints the given data as a hex string for a specific number of bits.
+ * @struct tls_mod_rand_t
+ * Holds the result of a TLS modulus random number generation.
  *
- * @param d Pointer to the data.
- * @param bits Number of bits to print.
+ * @var cbprng The random number generator state.
+ * @var fountain_code The fountain code block.
+ * @var hash The hash value of the random number generation result.
  */
-void print_hex_bits(const void* d, int bits);
+typedef struct {
+  mask_t cbprng;
+  block_t fountain_code;
+  uint32_t hash;
+} tls_mod_rand_t;
 
 /**
- * Prints the given data as ASCII for a specific number of bits.
- *
- * @param d Pointer to the data.
- * @param bits Number of bits to print.
+ * Initializes the CBPRNG state.
  */
-void print_ascii_bits(const void* d, int bits);
+static inline void init_cbprng(void) {
+#if USE_SYSTEM_RANDOM
+  seed128_system();
+#else
+  srand128(42);
+#endif
+  pseudo_random_generator(&cbprng);
+}
 
-#endif /* UTILS_H */
+/**
+ * Initializes the program state.
+ *
+ * @param n The number of blocks in the fountain code.
+ * @param m The size of the output buffer.
+ * @return
+ */
+uint64_t init_program(uint64_t n, uint64_t m);
+
+/**
+ * Finalizes the program state.
+ */
+void finalize_program(void);
+
+/**
+ * Cypher the Fountain Code.
+ *
+ * @param fc The fountain code to cypher.
+ * @param seed The CBPRNG based seed.
+ * @param file_id The file ID.
+ */
+void cypher_fountain(block_t* fc, const uint64_t seed, const uint64_t file_id);
+
+/**
+ * Builds the hash of the encrypted Fountain Code.
+ *
+ * @param enc_b The encrypted fountain code.
+ * @param seed The CBPRNG based seed.
+ * @param file_id The file ID.
+ * @param is_valid The validity of the data.
+ * @param digest_out The output digest.
+ */
+void build_hash(const block_t* enc_b, uint64_t seed, const uint64_t file_id, const char* is_valid, uint32_t* digest_out);
+
+/**
+ * Builds a fountain code packet.
+ *
+ * @param pkt Pointer to the packet to fill.
+ * @param id The packet ID.
+ * @param seed The CBPRNG based seed.
+ * @param m The number of rows in the fountain code.
+ * @param n The number of columns in the fountain code.
+ * @param n_words The number of words in the packet.
+ */
+void build_fountain(packet_t* pkt, const uint64_t id, uint64_t* seed, const uint64_t m, const uint64_t n, const uint64_t n_words);
+
+/**
+ * Writes the fountain code.
+ *
+ * @param mod_rand The fountain code to write.
+ * @param out The output file.
+ */
+void write_fountain(const tls_mod_rand_t mod_rand, FILE* out);
+
+#endif /* UTILS_UTILS_H */
