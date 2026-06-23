@@ -24,16 +24,23 @@
 #error "Bits per S-box must be at least 3"
 #endif
 
+#if CBPRNG_BITS > 64
+#error "CBPRNG_BITS must be at most 64"
+#endif
+
 #if CBPRNG_BITS % S_BOX_BITS != 0
 #error "CBPRNG_BITS is not a multiple of S_BOX_BITS"
 #endif
 
-#if CBPRNG_BITS <= 256 && S_BOX_BITS <= 8
-typedef uint8_t perm_val_t;
-#elif CBPRNG_BITS <= 65536 && S_BOX_BITS <= 16
-typedef uint16_t perm_val_t;
+/* optimize variable to use the smallest type that fits the number of bits */
+#if S_BOX_BITS <= 8
+typedef uint8_t permutation_t;
+#elif S_BOX_BITS <= 16
+typedef uint16_t permutation_t;
+#elif S_BOX_BITS <= 32
+typedef uint32_t permutation_t;
 #else
-typedef uint32_t perm_val_t;
+typedef uint64_t permutation_t;
 #endif
 
 #endif /* CBPRNG_SETTINGS_H */

@@ -16,8 +16,8 @@
 #define MAX_TEST_BITS 24
 
 typedef struct {
-  perm_val_t* S;
-  perm_val_t* P;
+  permutation_t* S;
+  permutation_t* P;
   int bits;
   int layers;
   int sbox_bits;
@@ -35,20 +35,20 @@ void init_dynamic_gen(dynamic_gen_t* g, int bits) {
   int sbox_size = 1 << g->sbox_bits;
   int n_sboxes = bits / g->sbox_bits;
 
-  g->S = malloc(g->layers * n_sboxes * sbox_size * sizeof(perm_val_t));
-  g->P = malloc((g->layers - 1) * bits * sizeof(perm_val_t));
+  g->S = malloc(g->layers * n_sboxes * sbox_size * sizeof(permutation_t));
+  g->P = malloc((g->layers - 1) * bits * sizeof(permutation_t));
 
   /* fill S-Box with random permutations */
   for (int l = 0; l < g->layers; l++) {
     for (int s = 0; s < n_sboxes; s++) {
-      perm_val_t* box = &g->S[l * n_sboxes * sbox_size + s * sbox_size];
+      permutation_t* box = &g->S[l * n_sboxes * sbox_size + s * sbox_size];
       pseudo_random_s_box((s_box_t*)box);
     }
   }
 
   /* fill P-Box with random permutations */
   for (int l = 0; l < g->layers - 1; l++) {
-    perm_val_t* box = &g->P[l * bits];
+    permutation_t* box = &g->P[l * bits];
     pseudo_random_permutation(bits, box);
   }
 }

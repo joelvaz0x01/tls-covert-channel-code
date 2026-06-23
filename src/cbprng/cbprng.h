@@ -33,7 +33,7 @@ typedef struct {
  * @param n The number of elements in the array.
  * @param a The array to fill with the permutation.
  */
-void pseudo_random_permutation(int n, perm_val_t* a);
+void pseudo_random_permutation(int n, permutation_t* a);
 
 /**
  * Initializes the full pseudo-random generator.
@@ -54,7 +54,7 @@ void pseudo_random_generator(generator_t* g);
  * @param sbox_bits The number of bits per S-box.
  * @return The generated pseudo-random number.
  */
-mask_t generate_cbprng_generic(perm_val_t* S, perm_val_t* P, mask_t counter_value, int bits, int layers, int sbox_bits);
+mask_t generate_cbprng_generic(permutation_t* S, permutation_t* P, mask_t counter_value, int bits, int layers, int sbox_bits);
 
 /**
  * Generates the default pseudo-random number for a given counter value.

@@ -21,4 +21,6 @@ int main(void) {
     mask_t val = generate_cbprng(&g, counter);
     fwrite((void*)&val, sizeof(val), 1, stdout);
   }
+
+  return 0;
 }

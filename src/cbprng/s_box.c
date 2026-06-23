@@ -19,7 +19,7 @@
  * @param a The S-box permutation array.
  * @return true if it passes, false otherwise.
  */
-static inline bool completeness_test(int n, const perm_val_t* a) {
+static inline bool completeness_test(int n, const permutation_t* a) {
   for (int bit_mask_out = 1; bit_mask_out < n; bit_mask_out <<= 1) {
     for (int bit_mask_in = 1; bit_mask_in < n; bit_mask_in <<= 1) {
       int idx;
@@ -39,7 +39,7 @@ static inline bool completeness_test(int n, const perm_val_t* a) {
  * @param a The S-box permutation array.
  * @return true if it passes, false otherwise.
  */
-static inline bool nonlinearity_test(int n, const perm_val_t* a) {
+static inline bool nonlinearity_test(int n, const permutation_t* a) {
   for (int idx1 = 0; idx1 < n; idx1++) {
     int idx2;
     for (idx2 = 0; idx2 < n && (a[idx1] ^ a[idx2]) == a[idx1 ^ idx2]; idx2++);

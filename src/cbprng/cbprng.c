@@ -41,11 +41,11 @@ static bool avalanche_analysis(generator_t* g) {
   return true;
 }
 
-void pseudo_random_permutation(int n, perm_val_t* a) {
-  for (int idx = 0; idx < n; idx++) a[idx] = (perm_val_t)idx;
+void pseudo_random_permutation(int n, permutation_t* a) {
+  for (int idx = 0; idx < n; idx++) a[idx] = (permutation_t)idx;
   for (int idx = n - 1; idx > 0; idx--) { /* 0 <= swap_idx <= idx */
     int swap_idx = (int)(rand128_between(0, (uint64_t)idx));
-    perm_val_t swap_data = a[swap_idx];
+    permutation_t swap_data = a[swap_idx];
     a[swap_idx] = a[idx];
     a[idx] = swap_data;
   }
@@ -61,7 +61,7 @@ void pseudo_random_generator(generator_t* g) {
   } while (!avalanche_analysis(g));
 }
 
-mask_t generate_cbprng_generic(perm_val_t* S, perm_val_t* P, mask_t counter_value, int bits, int layers, int sbox_bits) {
+mask_t generate_cbprng_generic(permutation_t* S, permutation_t* P, mask_t counter_value, int bits, int layers, int sbox_bits) {
   mask_t s_box_mask = ((mask_t)1 << sbox_bits) - 1;
   mask_t state = counter_value;
   int n_sboxes = bits / sbox_bits;
@@ -87,5 +87,5 @@ mask_t generate_cbprng_generic(perm_val_t* S, perm_val_t* P, mask_t counter_valu
 }
 
 mask_t generate_cbprng(generator_t* g, mask_t counter_value) {
-  return generate_cbprng_generic((perm_val_t*)g->S, (perm_val_t*)g->P, counter_value, CBPRNG_BITS, N_LAYERS, S_BOX_BITS);
+  return generate_cbprng_generic((permutation_t*)g->S, (permutation_t*)g->P, counter_value, CBPRNG_BITS, N_LAYERS, S_BOX_BITS);
 }
