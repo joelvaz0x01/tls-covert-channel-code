@@ -1,4 +1,4 @@
-add_library(cbprng_lib STATIC
+add_library(cbprng_lib OBJECT
   cbprng.c
   p_box.c
   s_box.c

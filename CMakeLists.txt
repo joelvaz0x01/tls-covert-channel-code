@@ -33,7 +33,7 @@ add_compile_options(
   $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wextra>
   $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wpedantic>
   $<$<AND:$<CONFIG:Release>,$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>>:-O3>
-  # $<$<AND:$<CONFIG:Release>,$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>>:-march=native>
+  $<$<AND:$<CONFIG:Release>,$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>>:-march=native>
   # MSVC flags
   $<$<C_COMPILER_ID:MSVC>:/W4>
   $<$<AND:$<CONFIG:Release>,$<C_COMPILER_ID:MSVC>>:/O2>
@@ -54,12 +54,16 @@ add_subdirectory(study)
 enable_testing()
 
 add_executable(fountain_test test/fountain_code/test_fountain.c)
+target_link_libraries(fountain_test PRIVATE
+  fountain_code_lib cbprng_lib hash_lib rand_lib uint128_lib generic_utils m
+)
 set_target_properties(fountain_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
-target_link_libraries(fountain_test PRIVATE modified_tls_random m)
 
 
 add_executable(cbprng_test test/cbprng/test_cbprng.c)
-target_link_libraries(cbprng_test PRIVATE modified_tls_random)
+target_link_libraries(cbprng_test PRIVATE
+  fountain_code_lib cbprng_lib hash_lib rand_lib uint128_lib generic_utils
+)
 set_target_properties(cbprng_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
 
 # global target configuration
@@ -68,8 +72,6 @@ set(ALL_TARGETS
     encoder
     decoder
     fountain_code_demo
-    # Libraries
-    modified_tls_random
     # Tests
     fountain_test
     cbprng_test
@@ -90,7 +92,7 @@ foreach(TGT ${ALL_TARGETS})
     $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wextra>
     $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-Wpedantic>
     $<$<AND:$<CONFIG:Release>,$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>>:-O3>
-    # $<$<AND:$<CONFIG:Release>,$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>>:-march=native>
+    $<$<AND:$<CONFIG:Release>,$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>>:-march=native>
     # MSVC flags
     $<$<C_COMPILER_ID:MSVC>:/W4>
     $<$<AND:$<CONFIG:Release>,$<C_COMPILER_ID:MSVC>>:/O2>

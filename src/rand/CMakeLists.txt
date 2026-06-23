@@ -1,4 +1,4 @@
-add_library(rand_lib STATIC rand128.c rand64.c system.c time.c)
+add_library(rand_lib OBJECT rand128.c rand64.c system.c time.c)
 
 target_include_directories(rand_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
