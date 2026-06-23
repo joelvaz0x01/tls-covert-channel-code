@@ -6,13 +6,23 @@
 #ifndef FOUNTAIN_CODE_SETTINGS_H
 #define FOUNTAIN_CODE_SETTINGS_H
 
+#include <stdint.h>
+
+#ifndef MAX_BLOCKS
+#define MAX_BLOCKS 1000 /**< hard upper limit on n */
+#endif
+
 #define FC_BLOCK_SIZE 160                         /**< source-block size in bits           */
 #define BLOCK_WORDS   ((FC_BLOCK_SIZE + 63) / 64) /**< number of words in the source-block */
-#define MAX_BLOCKS    1000                        /**< hard upper limit on n               */
-#define EULER         0.5772156649015329          /**< Euler–Mascheroni constant           */
 #define VEC_WORDS     ((MAX_BLOCKS + 63) / 64)    /**< number of words in the vector       */
 
+/* Constants used to prevent Coupon Collector's Problem */
 #define ALPHA         2.5
+#define EULER         0.5772156649015329
+
+#if MAX_BLOCKS > (UINT64_MAX - 63)
+#error "MAX_BLOCKS must be at most 64 bits long"
+#endif
 
 #if FC_BLOCK_SIZE < 1
 #error "FC_BLOCK_SIZE must be at least 1"

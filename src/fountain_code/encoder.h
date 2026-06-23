@@ -14,18 +14,15 @@
 /**
  * Encoder: produce one fountain-code packet.
  *
- * Selects m source-block indices with replacement; vec_set is
- * idempotent so duplicate picks are silently merged (matching the
- * reference algorithm).  Data = XOR of every block whose bit is set.
+ * XORs the first k blocks together into the packet data. The caller
+ * must place the selected source blocks at positions 0..k-1.
  *
+ * @param pkt Pointer to the packet to fill.
  * @param id Packet ID.
- * @param blocks Pointer to the source blocks.
- * @param n Number of source blocks.
- * @param m Number of blocks to select.
- * @param nw Number of words in the selector vector.
- * @return The encoded packet.
+ * @param k Number of source blocks to XOR.
+ * @param blocks Pointer to the first k source blocks.
  */
-packet_t encode_packet(const int id, const uint64_t seed, const block_t* blocks, const uint64_t n, const uint64_t m, const uint64_t n_words);
+void encode_packet(packet_t* pkt, const int id, const uint64_t k, const block_t* blocks);
 
 /**
  * Feeds a packet to the decoder.

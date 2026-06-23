@@ -10,6 +10,7 @@
 
 #include "decoder.h"
 #include "utils.h"
+#include "vec_ops.h"
 
 void decoder_solve(decoder_t* dec, block_t* out_blocks) {
   uint64_t n = dec->n;

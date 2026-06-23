@@ -5,43 +5,74 @@
 
 #include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include <rand/rand64.h>
+#include <rand/rand128.h>
 
 #include "settings.h"
 #include "utils.h"
+#include "vec_ops.h"
 
-void data_xor(block_t* dst, const block_t* src) {
-  for (uint64_t i = 0; i < BLOCK_WORDS; i++) {
-    dst->w[i] ^= src->w[i];
-  }
-}
-
-void vec_xor(vec_t* dst, const vec_t* src, uint64_t n_words) {
-  for (uint64_t i = 0; i < n_words; i++) dst->w[i] ^= src->w[i];
-}
-
-void decoder_init(decoder_t* dec, uint64_t n) {
-  memset(dec, 0, sizeof(*dec));
+int decoder_init(decoder_t* dec, uint64_t n) {
   dec->n = n;
   dec->n_words = (n + 63) / 64;
   dec->remaining = n;
+  dec->pivot_present = NULL;
+  dec->pivot_sel = NULL;
+  dec->pivot_data = NULL;
+  dec->scratch_sel = NULL;
+
+  dec->pivot_present = calloc(n, sizeof(bool));
+  dec->pivot_sel = calloc((size_t)n, sizeof(vec_t));
+  dec->pivot_data = calloc(n, sizeof(block_t));
+  dec->scratch_sel = calloc(1, sizeof(vec_t));
+  if (NULL == dec->pivot_present || NULL == dec->pivot_sel || NULL == dec->pivot_data || NULL == dec->scratch_sel) {
+    decoder_destroy(dec);
+    return -1;
+  }
+
+  return 0;
+}
+
+void decoder_destroy(decoder_t* dec) {
+  if (NULL == dec) return;
+
+  free(dec->pivot_present);
+  free(dec->pivot_sel);
+  free(dec->pivot_data);
+  free(dec->scratch_sel);
+
+  dec->pivot_present = NULL;
+  dec->pivot_sel = NULL;
+  dec->pivot_data = NULL;
+  dec->scratch_sel = NULL;
 }
 
 uint64_t generate_k(uint64_t m, uint64_t seed, uint64_t n, uint64_t* out) {
-  srand64(seed);
+  static vec_t* seen = NULL;
+  if (NULL == seen) {
+    seen = calloc(1, sizeof(vec_t));
+    if (NULL == seen) return 0;
+  }
 
-  vec_t seen = {0};
+  uint64_t modified[256];
+  uint64_t mod_count = 0;
   uint64_t count = 0;
 
+  srand128(seed);
   for (uint64_t i = 0; i < m; i++) {
-    uint64_t v = rand64_between(0, n - 1);
-    if (!vec_test(&seen, v)) {
-      vec_set(&seen, v);
+    uint64_t v = rand128_between(0, n - 1);
+    if (!vec_test(seen, v)) {
+      vec_set(seen, v);
+      if (mod_count < 256) modified[mod_count++] = v / 64;
       out[count++] = v;
     }
   }
+
+  for (uint64_t i = 0; i < mod_count; i++)
+    seen->w[modified[i]] = 0;
+
   return count;
 }
 
