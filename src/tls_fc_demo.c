@@ -6,18 +6,22 @@
  */
 
 #include <inttypes.h>
+#include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include <fountain_code/decoder.h>
 #include <fountain_code/encoder.h>
 #include <fountain_code/settings.h>
 #include <fountain_code/utils.h>
-#include <rand/rand64.h>
+#include <fountain_code/vec_ops.h>
+#include <rand/rand128.h>
 #include <rand/system.h>
+#include <utils/file.h>
 #include <utils/print.h>
+
+#define INPUT_FILE  "input.txt"
+#define OUTPUT_FILE "reconstructed.txt"
 
 /**
  * Prints the given selector as a binary string of exactly n characters.
@@ -30,12 +34,9 @@ static inline void print_sel(const vec_t* v, uint64_t n) {
 }
 
 int main(void) {
-  const char* input_file = "input.txt";
-  const char* output_file = "reconstructed.txt";
-
   /* ensure 'input.txt' exists and has content. */
   {
-    FILE* chk = fopen(input_file, "rb");
+    FILE* chk = fopen(INPUT_FILE, "rb");
     int needs_content;
     if (NULL == chk) {
       needs_content = 1; /* file does not exist */
@@ -47,7 +48,7 @@ int main(void) {
 
     /* put default text into empty file */
     if (needs_content) {
-      FILE* wfp = fopen(input_file, "w");
+      FILE* wfp = fopen(INPUT_FILE, "w");
       if (!wfp) {
         perror("fopen input.txt");
         return 1;
@@ -62,83 +63,43 @@ int main(void) {
     }
   }
 
+  bool all_ok = false;
+
   /* read input file into zero-padded source blocks */
-  FILE* fp = fopen(input_file, "rb");
-  if (!fp) {
-    perror("fopen");
-    return 1;
+  uint64_t n = calculate_n(INPUT_FILE);
+  if (n > MAX_BLOCKS) {
+    fprintf(stderr, "[-] message size exceeds MAX_BLOCKS: expected <= %d, got %lu\n", MAX_BLOCKS, n);
+    goto cleanup;
   }
-  fseek(fp, 0, SEEK_END);
-  long file_bits = ftell(fp) << 3;
-  long original_file_bits = file_bits;
-  rewind(fp);
-
-  /* Calculate number of blocks based on bit size */
-  uint64_t n = (uint64_t)((file_bits + FC_BLOCK_SIZE - 1) / FC_BLOCK_SIZE);
-  if (n < 2 || n > MAX_BLOCKS) {
-    fprintf(stderr, "File must produce between 2 and %d blocks.\n", MAX_BLOCKS);
-    fclose(fp);
-    return 1;
-  }
-
-  block_t* src = calloc((size_t)n, sizeof(block_t));
-  if (!src) {
-    perror("calloc");
-    fclose(fp);
-    return 1;
-  }
-
-  /* Reading file into blocks. The data is stored in the uint64_t words of block_t. */
-  for (uint64_t i = 0; i < n; i++) {
-    int to_read = FC_BLOCK_SIZE;
-    if (file_bits < to_read) to_read = (int)file_bits;
-    if (to_read > 0) {
-      if (fread(&src[i], 1, (size_t)(to_read >> 3), fp) != (size_t)(to_read >> 3)) {
-        perror("fread");
-        free(src);
-        fclose(fp);
-        return 1;
-      }
-      file_bits -= to_read;
-    }
-  }
-  fclose(fp);
-  file_bits = original_file_bits;
-
-  /* compute packet degree m */
-  uint64_t m = generate_m(n);
 
   /* print banner */
   printf("======================================================================\n");
   printf(" Fountain Code File-Transfer Demo\n");
   printf("======================================================================\n");
-  printf(" Input file    : %s (%ld bits)\n", input_file, file_bits);
+  printf(" Input file    : %s\n", INPUT_FILE);
   printf(" Source blocks : n = %" PRIu64 " blocks (each with %d bits)\n", n, FC_BLOCK_SIZE);
   printf(" Degree        : m = round(%.1f * ln(%" PRIu64 ") + Euler-Mascheroni)\n", ALPHA, n);
   printf("======================================================================\n\n");
 
+  uint64_t m = generate_m(n);
+  uint64_t n_words = init_program(n, m);
+
   /* print source blocks */
   printf("[ Source blocks ]\n");
   for (uint64_t i = 0; i < n; i++) {
+    if (-1 == read_file_part(INPUT_FILE, i, &buffer[0])) {
+      fprintf(stderr, "\nError: failed to read block %" PRIu64 " from input file\n", i);
+      goto cleanup;
+    }
     printf("  [%2" PRIu64 "]  hex: ", i);
-    print_hex_bits(&src[i], FC_BLOCK_SIZE);
+    print_hex_bits(&buffer[0], FC_BLOCK_SIZE);
     printf("  txt: \"");
-    print_ascii_bits(&src[i], FC_BLOCK_SIZE);
+    print_ascii_bits(&buffer[0], FC_BLOCK_SIZE);
     printf("\"\n");
   }
   putchar('\n');
 
-  /* encode packets and decode on-the-fly */
-  seed64_system();
-  decoder_t* dec = calloc(1, sizeof(decoder_t));
-  if (!dec) {
-    perror("calloc decoder");
-    free(src);
-    return 1;
-  }
-  decoder_init(dec, n);
-
-  uint64_t n_words = (n + 63) / 64;
+  seed128_system();
   int total_sent = 0;
   int total_useful = 0;
 
@@ -151,18 +112,27 @@ int main(void) {
   for (int k = 0; k < 6 + (int)n + 2 + (FC_BLOCK_SIZE >> 2) + 2 + 30; k++) putchar('-');
   putchar('\n');
 
-  while (dec->remaining != 0) {
-    uint64_t seed = rand64();
-    packet_t pkt = encode_packet(total_sent, seed, src, n, m, n_words);
+  while (0 != dec->remaining) {
+    uint64_t k = generate_k(m, rand128(), n, k_list);
+    vec_zero(dec->scratch_sel, n_words);
+    for (uint64_t i = 0; i < k; i++) {
+      vec_set(dec->scratch_sel, k_list[i]);
+      if (-1 == read_file_part(INPUT_FILE, k_list[i], &buffer[i])) {
+        fprintf(stderr, "[-] read_file_part failed: %lu\n", k_list[i]);
+        goto cleanup;
+      }
+    }
+    encode_packet(g_scratch_pkt, total_sent, k, buffer);
+
+    printf("  #%-3d  ", g_scratch_pkt->id);
+    print_sel(dec->scratch_sel, n);
+    printf("  ");
+    print_hex_bits(&g_scratch_pkt->data, FC_BLOCK_SIZE);
+
+    bool useful = decoder_feed(dec, g_scratch_pkt);
+    if (useful) total_useful++;
     total_sent++;
 
-    bool useful = decoder_feed(dec, &pkt);
-    if (useful) total_useful++;
-
-    printf("  #%-3d  ", pkt.id);
-    print_sel(&pkt.selector, n);
-    printf("  ");
-    print_hex_bits(&pkt.data, FC_BLOCK_SIZE);
     printf("  %s  (remaining=%" PRIu64 ")\n", useful ? "[ new pivot ]" : "[ redundant ]", dec->remaining);
   }
 
@@ -173,54 +143,55 @@ int main(void) {
     total_sent - total_useful
   );
 
-  /* back-substitution to recover individual source blocks */
-  block_t* out = calloc((size_t)n, sizeof(block_t));
-  if (!out) {
-    perror("calloc out");
-    free(dec);
-    free(src);
-    return 1;
-  }
+  /* back-substitution to recover individual source blocks (in-place) */
+  decoder_solve(dec, NULL);
 
-  decoder_solve(dec, out);
-
-  /* print reconstructed blocks */
+  /* compare reconstructed blocks against originals and write output */
   printf("[ Reconstructed blocks ]\n");
-  bool all_ok = true;
+  all_ok = true;
   for (uint64_t i = 0; i < n; i++) {
-    bool ok = (0 == memcmp(&out[i], &src[i], sizeof(block_t)));
+    if (-1 == read_file_part(INPUT_FILE, i, &buffer[0])) {
+      fprintf(stderr, "\nError: failed to read block %" PRIu64 " from input file\n", i);
+      all_ok = false;
+      break;
+    }
+    bool ok = (0 == memcmp(&dec->pivot_data[i], &buffer[0], sizeof(block_t)));
     if (!ok) all_ok = false;
+
     printf("  [%2" PRIu64 "]  hex: ", i);
-    print_hex_bits(&out[i], FC_BLOCK_SIZE);
+    print_hex_bits(&dec->pivot_data[i], FC_BLOCK_SIZE);
     printf("  txt: \"");
-    print_ascii_bits(&out[i], FC_BLOCK_SIZE);
+    print_ascii_bits(&dec->pivot_data[i], FC_BLOCK_SIZE);
     printf("\"  [%s]\n", ok ? " OK " : "FAIL");
+
+    size_t to_write = FC_LEN_BYTES;
+    if (i == n - 1) {
+      uint8_t* p = (uint8_t*)&dec->pivot_data[i];
+      while (to_write > 1 && p[to_write - 1] == 0)
+        to_write--;
+    }
+    if (-1 == save_decoder(OUTPUT_FILE, dec->pivot_data[i], to_write)) {
+      fprintf(stderr, "\nError: failed to write block %" PRIu64 " to output file\n", i);
+      all_ok = false;
+      break;
+    }
   }
 
-  /* write output file */
-  fp = fopen(output_file, "wb");
-  if (fp) {
-    long remaining_bits = original_file_bits;
-    for (uint64_t i = 0; i < n; i++) {
-      int to_write = FC_BLOCK_SIZE;
-      if (remaining_bits < to_write) to_write = (int)remaining_bits;
-      if (to_write > 0) {
-        fwrite(&out[i], 1, (size_t)(to_write >> 3), fp);
-        remaining_bits -= to_write;
-      }
-    }
-    fclose(fp);
-  }
+  close_files();
 
   printf(
     "\n  Reconstruction : %s\n",
     all_ok ? "SUCCESS — original file recovered perfectly!" : "FAILURE — one or more blocks do not match!"
   );
-  printf("  Output written : %s\n\n", output_file);
 
-  free(out);
-  free(dec);
-  free(src);
+  if (!all_ok)
+    remove(OUTPUT_FILE);
+  else
+    printf("  Output written : %s\n\n", OUTPUT_FILE);
+
+cleanup:
+  close_files();
+  finalize_program();
 
   return all_ok ? 0 : 1;
 }
