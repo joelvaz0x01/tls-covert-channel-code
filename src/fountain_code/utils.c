@@ -8,6 +8,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+static int cmp_uint64(const void* a, const void* b) {
+  uint64_t x = *(const uint64_t*)a;
+  uint64_t y = *(const uint64_t*)b;
+  if (x < y) return -1;
+  if (x > y) return 1;
+  return 0;
+}
+
 #include <rand/rand128.h>
 
 #include "settings.h"
@@ -27,6 +35,7 @@ int decoder_init(decoder_t* dec, uint64_t n) {
   dec->pivot_sel = calloc((size_t)n, sizeof(vec_t));
   dec->pivot_data = calloc(n, sizeof(block_t));
   dec->scratch_sel = calloc(1, sizeof(vec_t));
+
   if (NULL == dec->pivot_present || NULL == dec->pivot_sel || NULL == dec->pivot_data || NULL == dec->scratch_sel) {
     decoder_destroy(dec);
     return -1;
@@ -73,6 +82,7 @@ uint64_t generate_k(uint64_t m, uint64_t seed, uint64_t n, uint64_t* out) {
   for (uint64_t i = 0; i < mod_count; i++)
     seen->w[modified[i]] = 0;
 
+  qsort(out, count, sizeof(uint64_t), cmp_uint64);
   return count;
 }
 

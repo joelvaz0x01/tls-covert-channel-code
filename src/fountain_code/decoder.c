@@ -26,11 +26,13 @@ void decoder_solve(decoder_t* dec, block_t* out_blocks) {
     }
   }
 
-  for (uint64_t i = 0; i < n; i++) {
-    if (dec->pivot_present[i]) {
-      out_blocks[i] = dec->pivot_data[i];
-    } else {
-      memset(&out_blocks[i], 0, sizeof(block_t));
+  if (out_blocks != NULL) {
+    for (uint64_t i = 0; i < n; i++) {
+      if (dec->pivot_present[i]) {
+        out_blocks[i] = dec->pivot_data[i];
+      } else {
+        memset(&out_blocks[i], 0, sizeof(block_t));
+      }
     }
   }
 }
