@@ -1,6 +1,11 @@
 add_executable(cbprng_spectral_visualizer cbprng_spectral_visualizer.c)
 
-target_link_libraries(cbprng_spectral_visualizer PRIVATE cbprng_lib rand_lib m)
+target_link_libraries(cbprng_spectral_visualizer PRIVATE
+  spectral_visualizer
+  cbprng_lib
+  rand_lib
+  m
+)
 
 target_include_directories(cbprng_spectral_visualizer PRIVATE ${CMAKE_SOURCE_DIR}/src)
 

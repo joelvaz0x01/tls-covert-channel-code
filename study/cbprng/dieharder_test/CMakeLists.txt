@@ -38,8 +38,12 @@ foreach(CASE IN LISTS TEST_CASES)
   )
 endforeach()
 
-file(
-  COPY run_dieharder_tests.sh
-  DESTINATION ${CMAKE_SOURCE_DIR}/bin/study/cbprng/dieharder_test
-  FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+configure_file(
+  run_dieharder_tests.sh
+  ${CMAKE_SOURCE_DIR}/bin/study/cbprng/dieharder_test/run_dieharder_tests.sh
+  COPYONLY
+)
+file(CHMOD
+  ${CMAKE_SOURCE_DIR}/bin/study/cbprng/dieharder_test/run_dieharder_tests.sh
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )

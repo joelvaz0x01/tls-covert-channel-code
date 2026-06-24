@@ -1,10 +1,18 @@
-add_executable(rand64_spectral_visualizer  rand64_spectral_visualizer.c)
+add_executable(rand64_spectral_visualizer rand64_spectral_visualizer.c)
 add_executable(rand128_spectral_visualizer rand128_spectral_visualizer.c)
 
-target_link_libraries(rand64_spectral_visualizer  PRIVATE rand_lib m)
-target_link_libraries(rand128_spectral_visualizer PRIVATE rand_lib m)
+target_link_libraries(rand64_spectral_visualizer PRIVATE
+  spectral_visualizer
+  rand_lib
+  m
+)
+target_link_libraries(rand128_spectral_visualizer PRIVATE
+  spectral_visualizer
+  rand_lib
+  m
+)
 
-target_include_directories(rand64_spectral_visualizer  PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(rand64_spectral_visualizer PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_include_directories(rand128_spectral_visualizer PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 set(SPECTRAL_OUT_DIR ${CMAKE_SOURCE_DIR}/bin/study/rand/spectral_visualizer)
