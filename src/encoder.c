@@ -40,7 +40,6 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  /* read file into block */
   uint64_t m = generate_m(n);
   uint64_t n_words = init_program(n, m);
 
@@ -58,8 +57,8 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    tls_mod_rand_t mod_rand = modified_random_field(0, &seed, m, n, n_words);
-    save_fountain_code(dest_file, mod_rand);
+    tls_mod_rand_t data = modified_random_field(0, &seed, m, n, n_words);
+    save_encoder(dest_file, data);
     counter_value++;
   }
 
