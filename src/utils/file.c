@@ -54,6 +54,10 @@ uint64_t open_file(const char* filename, const int is_src) {
   return 1;
 }
 
+long get_src_size(void) {
+  return src_size;
+}
+
 void close_files(void) {
   if (NULL != fp_src) {
     fclose(fp_src);
@@ -127,11 +131,20 @@ int read_file_part(const char* filename, const uint64_t file_part, block_t* buff
   return 0;
 }
 
-int save_fountain_code(const char* filename, const tls_mod_rand_t mod_rand) {
+int save_encoder(const char* filename, const tls_mod_rand_t data) {
   if (NULL == fp_dst) {
     if (0 == open_file(filename, 0)) return -1;
   }
 
-  write_fountain(mod_rand, fp_dst);
+  write_fountain(data, fp_dst);
   return 0;
+}
+
+int save_decoder(const char* filename, const block_t data, size_t n_bytes) {
+  if (NULL == fp_dst) {
+    if (0 == open_file(filename, 0)) return -1;
+  }
+
+  size_t n = fwrite(&data, 1, n_bytes, fp_dst);
+  return (n == n_bytes) ? 0 : -1;
 }

@@ -45,12 +45,29 @@ uint64_t calculate_n(const char* filename);
 int read_file_part(const char* filename, const uint64_t file_part, block_t* buffer);
 
 /**
- * Saves the resultant Fountain Code into a file in binary mode.
+ * Returns the size of the source file in bytes.
+ *
+ * @return The source file size, or 0 if not yet opened.
+ */
+long get_src_size(void);
+
+/**
+ * Saves the encoder state (tls_mod_rand_t) in binary mode.
  *
  * @param filename The name of the file to save.
- * @param mod_rand The modified TLS random field.
+ * @param data The data to write.
  * @return 0 on success, -1 on error.
  */
-int save_fountain_code(const char* filename, const tls_mod_rand_t mod_rand);
+int save_encoder(const char* filename, const tls_mod_rand_t data);
+
+/**
+ * Saves the decoder state (block_t) in binary mode.
+ *
+ * @param filename The name of the output file.
+ * @param data The data to write.
+ * @param n_bytes The number of bytes to write.
+ * @return 0 on success, -1 on error.
+ */
+int save_decoder(const char* filename, const block_t data, size_t n_bytes);
 
 #endif /* UTILS_FILE_H */

@@ -20,12 +20,12 @@
 #include <rand/rand128.h>
 #endif
 
-extern generator_t cbprng;      /* cbprng state */
-extern mask_t counter_value;    /* counter value for cbprng */
-extern decoder_t* dec;          /* decoder state */
-extern block_t* buffer;         /* output buffer */
+extern generator_t cbprng;      /* cbprng state                     */
+extern mask_t counter_value;    /* counter value for cbprng         */
+extern decoder_t* dec;          /* decoder state                    */
+extern block_t* buffer;         /* buffer that holds only k blocks  */
 extern uint64_t* k_list;        /* list of k indices for each block */
-extern packet_t* g_scratch_pkt; /* scratch packet for hot path */
+extern packet_t* g_scratch_pkt; /* scratch packet for hot path      */
 
 /**
  * @struct tls_mod_rand_t

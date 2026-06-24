@@ -32,15 +32,20 @@ uint64_t init_program(uint64_t n, uint64_t m) {
     fprintf(stderr, "[-] could not allocate decoder.\n");
     exit(EXIT_FAILURE);
   }
+
   if (0 != decoder_init(dec, n)) {
     fprintf(stderr, "[-] could not initialize decoder for n=%lu.\n", n);
     free(dec);
+    dec = NULL;
     exit(EXIT_FAILURE);
   }
 
   buffer = calloc((size_t)m, sizeof(block_t));
   if (NULL == buffer) {
     free(dec);
+
+    dec = NULL;
+
     fprintf(stderr, "[-] could not allocate output buffer.\n");
     exit(EXIT_FAILURE);
   }
@@ -49,6 +54,10 @@ uint64_t init_program(uint64_t n, uint64_t m) {
   if (NULL == k_list) {
     free(dec);
     free(buffer);
+
+    dec = NULL;
+    buffer = NULL;
+
     fprintf(stderr, "[-] could not allocate k_list.\n");
     exit(EXIT_FAILURE);
   }
@@ -58,6 +67,11 @@ uint64_t init_program(uint64_t n, uint64_t m) {
     free(dec);
     free(buffer);
     free(k_list);
+
+    dec = NULL;
+    buffer = NULL;
+    k_list = NULL;
+
     fprintf(stderr, "[-] could not allocate scratch packet.\n");
     exit(EXIT_FAILURE);
   }
@@ -66,13 +80,17 @@ uint64_t init_program(uint64_t n, uint64_t m) {
 }
 
 void finalize_program(void) {
-  free(buffer);
   decoder_destroy(dec);
+
   free(dec);
+  free(buffer);
   free(k_list);
   free(g_scratch_pkt);
-  g_scratch_pkt = NULL;
+
   dec = NULL;
+  buffer = NULL;
+  k_list = NULL;
+  g_scratch_pkt = NULL;
 }
 
 void cypher_fountain(block_t* fc, const uint64_t seed, const uint64_t file_id) {
@@ -92,13 +110,13 @@ void cypher_fountain(block_t* fc, const uint64_t seed, const uint64_t file_id) {
   }
 }
 
-void build_hash(const block_t* enc_b, uint64_t seed, const uint64_t file_id, const char* is_valid, uint32_t* digest_out) {
+void build_hash(const block_t* enc_b, uint64_t seed, const uint64_t file_id, const char* is_invalid, uint32_t* digest_out) {
   sha256_ctx_t ctx;
   uint8_t full_digest[HASH_ALGORITHM->digest_size];
 
   HASH_ALGORITHM->init(&ctx);
 
-  HASH_ALGORITHM->update(&ctx, is_valid, 8);                   /* valid data              */
+  HASH_ALGORITHM->update(&ctx, is_invalid, 8);                 /* valid data              */
   HASH_ALGORITHM->update(&ctx, enc_b, FC_LEN);                 /* encrypted fountain code */
   HASH_ALGORITHM->update(&ctx, &seed, CBPRNG_LEN);             /* seed                    */
   HASH_ALGORITHM->update(&ctx, &file_id, sizeof(file_id) * 8); /* file identifier (i)     */
@@ -113,7 +131,8 @@ void build_fountain(packet_t* pkt, const uint64_t id, uint64_t* seed, const uint
   for (;;) {
     uint64_t k = generate_k(m, *seed, n, k_list);
     vec_zero(dec->scratch_sel, n_words);
-    for (uint64_t i = 0; i < k; i++) vec_set(dec->scratch_sel, k_list[i]);
+    for (uint64_t i = 0; i < k; i++)
+      vec_set(dec->scratch_sel, k_list[i]);
     encode_packet(pkt, id, k, buffer);
 
     if (decoder_feed(dec, pkt)) return;
@@ -131,16 +150,16 @@ tls_mod_rand_t modified_random_field(const uint64_t id, uint64_t* seed, const ui
   result.fountain_code = g_scratch_pkt->data;
 
   cypher_fountain(&result.fountain_code, *seed, id);
-  build_hash(&result.fountain_code, *seed, id, "1", &result.hash);
+  build_hash(&result.fountain_code, *seed, id, "0", &result.hash);
 
   return result;
 }
 
-void write_fountain(const tls_mod_rand_t mod_rand, FILE* out) {
-  fwrite(&mod_rand.cbprng, sizeof(mask_t), 1, out);
+void write_fountain(const tls_mod_rand_t data, FILE* out) {
+  fwrite(&data.cbprng, sizeof(mask_t), 1, out);
   for (int i = 0; i < BLOCK_WORDS - 1; i++) {
-    fwrite(&mod_rand.fountain_code.w[i], sizeof(uint64_t), 1, out);
+    fwrite(&data.fountain_code.w[i], sizeof(uint64_t), 1, out);
   }
-  fwrite(&mod_rand.fountain_code.w[BLOCK_WORDS - 1], sizeof(uint32_t), 1, out);
-  fwrite(&mod_rand.hash, sizeof(uint32_t), 1, out);
+  fwrite(&data.fountain_code.w[BLOCK_WORDS - 1], sizeof(uint32_t), 1, out);
+  fwrite(&data.hash, sizeof(uint32_t), 1, out);
 }
