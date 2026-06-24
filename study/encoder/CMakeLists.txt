@@ -1,1 +1,2 @@
+add_subdirectory(dieharder_test)
 add_subdirectory(spectral_visualizer)
