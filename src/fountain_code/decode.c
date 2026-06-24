@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "decoder.h"
+#include "decode.h"
 #include "utils.h"
 #include "vec_ops.h"
 

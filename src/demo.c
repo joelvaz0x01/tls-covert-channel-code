@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <fountain_code/decoder.h>
+#include <fountain_code/decode.h>
 #include <fountain_code/encoder.h>
 #include <fountain_code/settings.h>
 #include <fountain_code/utils.h>

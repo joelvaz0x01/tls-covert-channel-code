@@ -1,6 +1,6 @@
 add_library(fountain_code_lib OBJECT
   encode.c
-  decoder.c
+  decode.c
   utils.c
 )
 
