@@ -28,8 +28,8 @@ target_link_libraries(decoder PRIVATE
   m
 )
 
-add_executable(fountain_code_demo tls_fc_demo.c)
-target_link_libraries(fountain_code_demo PRIVATE
+add_executable(encode_decode_demo demo.c)
+target_link_libraries(encode_decode_demo PRIVATE
   fountain_code_lib
   cbprng_lib
   hash_lib

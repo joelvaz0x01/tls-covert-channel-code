@@ -71,7 +71,7 @@ set(ALL_TARGETS
     # Executables
     encoder
     decoder
-    fountain_code_demo
+    encode_decode_demo
     # Tests
     fountain_test
     cbprng_test
