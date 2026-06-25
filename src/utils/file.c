@@ -12,7 +12,6 @@
 
 #include "file.h"
 #include "settings.h"
-#include "utils.h"
 
 static FILE* fp_src = NULL;
 static FILE* fp_dst = NULL;
@@ -147,4 +146,13 @@ int save_decoder(const char* filename, const block_t data, size_t n_bytes) {
 
   size_t n = fwrite(&data, 1, n_bytes, fp_dst);
   return (n == n_bytes) ? 0 : -1;
+}
+
+void write_fountain(const tls_mod_rand_t data, FILE* out) {
+  fwrite(&data.cbprng, sizeof(mask_t), 1, out);
+  for (int i = 0; i < BLOCK_WORDS - 1; i++) {
+    fwrite(&data.fountain_code.w[i], sizeof(uint64_t), 1, out);
+  }
+  fwrite(&data.fountain_code.w[BLOCK_WORDS - 1], sizeof(uint32_t), 1, out);
+  fwrite(&data.hash, sizeof(uint32_t), 1, out);
 }

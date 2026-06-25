@@ -7,7 +7,6 @@
 #define UTILS_UTILS_H
 
 #include <stdint.h>
-#include <stdio.h>
 
 #include <cbprng/cbprng.h>
 #include <fountain_code/utils.h>
@@ -20,8 +19,6 @@
 #include <rand/rand128.h>
 #endif
 
-extern generator_t cbprng;      /* cbprng state                     */
-extern mask_t counter_value;    /* counter value for cbprng         */
 extern decoder_t* dec;          /* decoder state                    */
 extern block_t* buffer;         /* buffer that holds only k blocks  */
 extern uint64_t* k_list;        /* list of k indices for each block */
@@ -40,18 +37,6 @@ typedef struct {
   block_t fountain_code;
   uint32_t hash;
 } tls_mod_rand_t;
-
-/**
- * Initializes the CBPRNG state.
- */
-static inline void init_cbprng(void) {
-#if USE_SYSTEM_RANDOM
-  seed128_system();
-#else
-  srand128(42);
-#endif
-  pseudo_random_generator(&cbprng);
-}
 
 /**
  * Initializes the program state.
@@ -86,25 +71,5 @@ void cypher_fountain(block_t* fc, const uint64_t seed, const uint64_t file_id);
  * @param digest_out The output digest.
  */
 void build_hash(const block_t* enc_b, uint64_t seed, const uint64_t file_id, const char* is_valid, uint32_t* digest_out);
-
-/**
- * Builds a fountain code packet.
- *
- * @param pkt Pointer to the packet to fill.
- * @param id The packet ID.
- * @param seed The CBPRNG based seed.
- * @param m The number of rows in the fountain code.
- * @param n The number of columns in the fountain code.
- * @param n_words The number of words in the packet.
- */
-void build_fountain(packet_t* pkt, const uint64_t id, uint64_t* seed, const uint64_t m, const uint64_t n, const uint64_t n_words);
-
-/**
- * Writes the fountain code.
- *
- * @param mod_rand The fountain code to write.
- * @param out The output file.
- */
-void write_fountain(const tls_mod_rand_t mod_rand, FILE* out);
 
 #endif /* UTILS_UTILS_H */

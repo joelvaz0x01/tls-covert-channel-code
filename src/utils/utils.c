@@ -3,24 +3,17 @@
  * Licensed under the Apache License 2.0
  */
 
-#include <inttypes.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <cbprng/cbprng.h>
-#include <fountain_code/encoder.h>
-#include <fountain_code/settings.h>
 #include <fountain_code/utils.h>
-#include <fountain_code/vec_ops.h>
 
 #include "settings.h"
 #include "utils.h"
 
-generator_t cbprng;
-mask_t counter_value = 0;
 decoder_t* dec = NULL;
 block_t* buffer = NULL;
 uint64_t* k_list = NULL;
@@ -42,37 +35,22 @@ uint64_t init_program(uint64_t n, uint64_t m) {
 
   buffer = calloc((size_t)m, sizeof(block_t));
   if (NULL == buffer) {
-    free(dec);
-
-    dec = NULL;
-
     fprintf(stderr, "[-] could not allocate output buffer.\n");
+    finalize_program();
     exit(EXIT_FAILURE);
   }
 
   k_list = malloc(m * sizeof(uint64_t));
   if (NULL == k_list) {
-    free(dec);
-    free(buffer);
-
-    dec = NULL;
-    buffer = NULL;
-
     fprintf(stderr, "[-] could not allocate k_list.\n");
+    finalize_program();
     exit(EXIT_FAILURE);
   }
 
   g_scratch_pkt = calloc(1, sizeof(packet_t));
   if (NULL == g_scratch_pkt) {
-    free(dec);
-    free(buffer);
-    free(k_list);
-
-    dec = NULL;
-    buffer = NULL;
-    k_list = NULL;
-
     fprintf(stderr, "[-] could not allocate scratch packet.\n");
+    finalize_program();
     exit(EXIT_FAILURE);
   }
 
@@ -125,41 +103,4 @@ void build_hash(const block_t* enc_b, uint64_t seed, const uint64_t file_id, con
   HASH_ALGORITHM->final(&ctx, full_digest);
 
   memcpy(digest_out, full_digest, 4);
-}
-
-void build_fountain(packet_t* pkt, const uint64_t id, uint64_t* seed, const uint64_t m, const uint64_t n, const uint64_t n_words) {
-  for (;;) {
-    uint64_t k = generate_k(m, *seed, n, k_list);
-    vec_zero(dec->scratch_sel, n_words);
-    for (uint64_t i = 0; i < k; i++)
-      vec_set(dec->scratch_sel, k_list[i]);
-    encode_packet(pkt, id, k, buffer);
-
-    if (decoder_feed(dec, pkt)) return;
-
-    counter_value++;
-    *seed = generate_cbprng(&cbprng, counter_value);
-  }
-}
-
-tls_mod_rand_t modified_random_field(const uint64_t id, uint64_t* seed, const uint64_t m, const uint64_t n, const uint64_t n_words) {
-  build_fountain(g_scratch_pkt, id, seed, m, n, n_words);
-
-  tls_mod_rand_t result;
-  result.cbprng = *seed;
-  result.fountain_code = g_scratch_pkt->data;
-
-  cypher_fountain(&result.fountain_code, *seed, id);
-  build_hash(&result.fountain_code, *seed, id, "0", &result.hash);
-
-  return result;
-}
-
-void write_fountain(const tls_mod_rand_t data, FILE* out) {
-  fwrite(&data.cbprng, sizeof(mask_t), 1, out);
-  for (int i = 0; i < BLOCK_WORDS - 1; i++) {
-    fwrite(&data.fountain_code.w[i], sizeof(uint64_t), 1, out);
-  }
-  fwrite(&data.fountain_code.w[BLOCK_WORDS - 1], sizeof(uint32_t), 1, out);
-  fwrite(&data.hash, sizeof(uint32_t), 1, out);
 }

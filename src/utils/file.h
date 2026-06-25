@@ -6,7 +6,9 @@
 #ifndef UTILS_FILE_H
 #define UTILS_FILE_H
 
+#include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include <fountain_code/utils.h>
 
@@ -69,5 +71,13 @@ int save_encoder(const char* filename, const tls_mod_rand_t data);
  * @return 0 on success, -1 on error.
  */
 int save_decoder(const char* filename, const block_t data, size_t n_bytes);
+
+/**
+ * Writes the fountain code.
+ *
+ * @param mod_rand The fountain code to write.
+ * @param out The output file.
+ */
+void write_fountain(const tls_mod_rand_t mod_rand, FILE* out);
 
 #endif /* UTILS_FILE_H */
