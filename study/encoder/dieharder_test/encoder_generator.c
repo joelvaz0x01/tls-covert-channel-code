@@ -12,10 +12,9 @@
 #include <cbprng/cbprng.h>
 #include <fountain_code/settings.h>
 #include <fountain_code/utils.h>
+#include <utils/encoder.h>
 #include <utils/file.h>
 #include <utils/utils.h>
-
-#include "encoder.h"
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {

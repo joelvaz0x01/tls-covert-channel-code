@@ -8,8 +8,18 @@ if(NOT OpenSSL_FOUND)
   return()
 endif()
 
-add_executable(openssl_spectral_visualizer openssl_spectral_visualizer.c)
-target_link_libraries(openssl_spectral_visualizer PRIVATE OpenSSL::Crypto spectral_visualizer m)
+add_subdirectory(openssl_rand_mod)
+
+add_executable(openssl_spectral_visualizer
+    openssl_spectral_visualizer.c
+)
+target_link_libraries(openssl_spectral_visualizer PRIVATE
+    OpenSSL::Crypto
+    openssl_rand_mod_lib
+    spectral_visualizer
+    rand_lib
+    m
+)
 
 set(SPECTRAL_OUT_DIR ${CMAKE_SOURCE_DIR}/bin/study/openssl/spectral_visualizer)
 set_target_properties(openssl_spectral_visualizer PROPERTIES

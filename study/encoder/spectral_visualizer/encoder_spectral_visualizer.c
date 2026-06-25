@@ -3,6 +3,8 @@
  * Licensed under the Apache License 2.0
  */
 
+#define USE_SYSTEM_RANDOM 0 /* make results reproducible */
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,12 +13,11 @@
 #include <cbprng/cbprng.h>
 #include <fountain_code/settings.h>
 #include <fountain_code/utils.h>
+#include <utils/encoder.h>
 #include <utils/file.h>
 #include <utils/utils.h>
 
 #include <study/spectral_visualizer.h>
-
-#include "encoder.h"
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {
