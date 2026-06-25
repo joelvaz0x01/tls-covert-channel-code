@@ -5,24 +5,20 @@
 
 #include <assert.h>
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
-#include <fountain_code/decoder.h>
+#include <fountain_code/decode.h>
 #include <fountain_code/encoder.h>
 #include <fountain_code/settings.h>
-#include <rand/rand64.h>
+#include <fountain_code/vec_ops.h>
+#include <rand/rand128.h>
 #include <rand/system.h>
+#include <utils/utils.h>
 
-/**
- * Performs a complete encode-decode-verify cycle for a given number of source blocks.
- *
- * @param n Number of source blocks to test.
- */
 void run_test(uint64_t n) {
-  seed64_system();
   printf("Testing with n = %4" PRIu64 " blocks...  ", n);
 
   if (n < 2 || n > MAX_BLOCKS) {
@@ -30,65 +26,65 @@ void run_test(uint64_t n) {
     assert(0);
   }
 
+  uint64_t m = generate_m(n);
+  uint64_t n_words = init_program(n, m);
+
   block_t* src = malloc((size_t)n * sizeof(block_t));
   assert(src != NULL);
 
-  /* fill blocks with some pseudo-random data */
   unsigned char* src_bytes = (unsigned char*)src;
   for (size_t i = 0; i < (size_t)n * sizeof(block_t); i++) {
-    src_bytes[i] = (unsigned char)(rand64_between(0, 255));
+    src_bytes[i] = (unsigned char)(rand128_between(0, 255));
   }
 
-  uint64_t m = generate_m(n);
-
-  /* decode blocks on-the-fly */
-  decoder_t* dec = calloc(1, sizeof(decoder_t));
-  assert(NULL != dec);
-  decoder_init(dec, n);
-
-  uint64_t n_words = (n + 63) / 64;
+  seed64_system();
   int total_sent = 0;
 
-  /* keep sending packets until the decoder has found enough pivots to solve the system */
+  /* encode */
   while (dec->remaining != 0) {
-    seed64_system();
-    uint64_t seed = rand64();
-    packet_t pkt = encode_packet(total_sent, seed, src, n, m, n_words);
+    uint64_t k = generate_k(m, rand128(), n, k_list);
+    packet_t pkt;
+    vec_zero(dec->scratch_sel, n_words);
+    for (uint64_t i = 0; i < k; i++) {
+      vec_set(dec->scratch_sel, k_list[i]);
+      buffer[i] = src[k_list[i]];  // review
+    }
+    encode_packet(&pkt, total_sent, k, buffer);
     decoder_feed(dec, &pkt);
     total_sent++;
 
-    /* safety break to prevent infinite loop if implementation is broken */
     if (total_sent > 10000) {
       fprintf(stderr, "Error: Decoder failed to converge after 10,000 packets\n");
       assert(0);
     }
   }
 
-  /* back-substitution to recover blocks */
   block_t* out = malloc((size_t)n * sizeof(block_t));
   assert(NULL != out);
+
+  /* decode */
   decoder_solve(dec, out);
 
-  /* verify result */
-  int match = (0 == memcmp(src, out, (size_t)n * sizeof(block_t)));
-
+  bool match = (0 == memcmp(src, out, (size_t)n * sizeof(block_t)));
   if (!match) {
     fprintf(stderr, "FAILURE: Reconstructed data does not match original for n=%" PRIu64 "\n", n);
     assert(match);
   }
 
   printf("SUCCESS (%5d packets generated)\n", total_sent);
+  finalize_program();
 
   free(src);
   free(out);
-  free(dec);
+
+  src = NULL;
+  out = NULL;
 }
 
 int main(void) {
   printf("\nStarting Fountain Code Implementation Tests...\n");
   printf("---------------------------------------------------------------------\n");
 
-  /* test a variety of sizes */
   uint64_t n;
   for (n = 2; n <= MAX_BLOCKS; n *= 2) {
     run_test(n);
