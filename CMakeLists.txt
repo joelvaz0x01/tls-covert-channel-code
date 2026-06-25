@@ -69,8 +69,8 @@ set_target_properties(cbprng_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BI
 # global target configuration
 set(ALL_TARGETS
     # Executables
-    encoder
     decoder
+    tls_encoder
     encode_decode_demo
     # Tests
     fountain_test

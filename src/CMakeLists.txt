@@ -6,8 +6,8 @@ add_subdirectory(uint128)
 add_subdirectory(utils)
 
 # executables
-add_executable(encoder encoder.c)
-target_link_libraries(encoder PRIVATE
+add_executable(tls_encoder tls_encoder.c)
+target_link_libraries(tls_encoder PRIVATE
   fountain_code_lib
   cbprng_lib
   hash_lib
