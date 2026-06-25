@@ -3,12 +3,18 @@
  * Licensed under the Apache License 2.0
  */
 
+#define USE_OPENSSL_RANDOM 0 /* make results reproducible */
+
 #include <openssl/crypto.h>
+#include <openssl/err.h>
 #include <openssl/rand.h>
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <openssl_rand_mod/seed_setup.h>
 
 #include <study/spectral_visualizer.h>
 
@@ -28,6 +34,15 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
 
+#if USE_OPENSSL_RANDOM == 0
+  if (1 != DET_RAND_bytes_register(ctx)) {
+    fprintf(stderr, "[-] DET_RAND_bytes_register failed\n");
+    ERR_print_errors_fp(stderr);
+    OSSL_LIB_CTX_free(ctx);
+    exit(EXIT_FAILURE);
+  }
+#endif
+
   unsigned char buf[32];
   double* x = malloc(n_samples * sizeof(double));
   if (!x) {
@@ -37,26 +52,32 @@ int main(int argc, char* argv[]) {
   }
 
   for (size_t i = 0; i < n_samples; i++) {
+#if USE_OPENSSL_RANDOM == 0
+    if (1 != DET_RAND_bytes_ex(ctx, buf, 32, 0)) {
+      fprintf(stderr, "[-] DET_RAND_bytes_ex failed at iteration %zu\n", i);
+#else
     if (1 != RAND_bytes_ex(ctx, buf, 32, 0)) {
       fprintf(stderr, "[-] RAND_bytes_ex failed at iteration %zu\n", i);
+#endif
       OSSL_LIB_CTX_free(ctx);
       free(x);
       exit(EXIT_FAILURE);
     }
 
-    uint64_t f0, f1, f2;
-    uint32_t f3, f4;
-    memcpy(&f0, buf, 8);
-    memcpy(&f1, buf + 8, 8);
-    memcpy(&f2, buf + 16, 8);
-    memcpy(&f3, buf + 24, 4);
-    memcpy(&f4, buf + 28, 4);
+    uint64_t cbprng, w1, w2;
+    uint32_t w3, hash;
 
-    double acc = (double)f0 / (double)UINT64_MAX;
-    acc += (double)f1 / (double)UINT64_MAX;
-    acc += (double)f2 / (double)UINT64_MAX;
-    acc += (double)f3 / (double)UINT32_MAX;
-    acc += (double)f4 / (double)UINT32_MAX;
+    memcpy(&cbprng, buf, 8);
+    memcpy(&w1, buf + 8, 8);
+    memcpy(&w2, buf + 16, 8);
+    memcpy(&w3, buf + 24, 4);
+    memcpy(&hash, buf + 28, 4);
+
+    double acc = (double)cbprng / (double)UINT64_MAX;
+    acc += (double)w1 / (double)UINT64_MAX;
+    acc += (double)w2 / (double)UINT64_MAX;
+    acc += (double)w3 / (double)UINT32_MAX;
+    acc += (double)hash / (double)UINT32_MAX;
     x[i] = acc / (double)N_FIELDS;
   }
 
