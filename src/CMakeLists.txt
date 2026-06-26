@@ -26,12 +26,9 @@ target_link_libraries(decoder PRIVATE
   generic_utils
 )
 
-add_executable(encode_decode_demo demo.c)
-target_link_libraries(encode_decode_demo PRIVATE
+add_executable(demo demo.c)
+target_link_libraries(demo PRIVATE
   fountain_code_lib
-  cbprng_lib
-  hash_lib
   rand_lib
-  uint128_lib
   generic_utils
 )

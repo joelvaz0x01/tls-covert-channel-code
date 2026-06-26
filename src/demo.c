@@ -6,6 +6,7 @@
  */
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,13 +16,18 @@
 #include <fountain_code/settings.h>
 #include <fountain_code/utils.h>
 #include <fountain_code/vec_ops.h>
+
 #include <rand/rand128.h>
 #include <rand/system.h>
+
+#include <utils/encoder.h>
 #include <utils/file.h>
 #include <utils/print.h>
 
 #define INPUT_FILE  "input.txt"
 #define OUTPUT_FILE "reconstructed.txt"
+
+static bool success = false;
 
 /**
  * Prints the given selector as a binary string of exactly n characters.
@@ -63,11 +69,8 @@ int main(void) {
     }
   }
 
-  bool all_ok = false;
-
-  /* read input file into zero-padded source blocks */
-  uint64_t n = calculate_n(INPUT_FILE);
-  if (n > MAX_BLOCKS) {
+  uint64_t n = calculate_n(INPUT_FILE, true);
+  if (n == 0 || n > MAX_BLOCKS) {
     fprintf(stderr, "[-] message size exceeds MAX_BLOCKS: expected <= %d, got %lu\n", MAX_BLOCKS, n);
     goto cleanup;
   }
@@ -113,14 +116,10 @@ int main(void) {
   putchar('\n');
 
   while (0 != dec->remaining) {
-    uint64_t k = generate_k(m, rand128(), n, k_list);
-    vec_zero(dec->scratch_sel, n_words);
-    for (uint64_t i = 0; i < k; i++) {
-      vec_set(dec->scratch_sel, k_list[i]);
-      if (-1 == read_file_part(INPUT_FILE, k_list[i], &buffer[i])) {
-        fprintf(stderr, "[-] read_file_part failed: %lu\n", k_list[i]);
-        goto cleanup;
-      }
+    uint64_t k = construct_k(rand128(), m, n, n_words, INPUT_FILE);
+    if (0 == k) {
+      fprintf(stderr, "[-] construct_k failed\n");
+      goto cleanup;
     }
     encode_packet(g_scratch_pkt, total_sent, k, buffer);
 
@@ -148,15 +147,13 @@ int main(void) {
 
   /* compare reconstructed blocks against originals and write output */
   printf("[ Reconstructed blocks ]\n");
-  all_ok = true;
   for (uint64_t i = 0; i < n; i++) {
     if (-1 == read_file_part(INPUT_FILE, i, &buffer[0])) {
       fprintf(stderr, "\nError: failed to read block %" PRIu64 " from input file\n", i);
-      all_ok = false;
       break;
     }
     bool ok = (0 == memcmp(&dec->pivot_data[i], &buffer[0], sizeof(block_t)));
-    if (!ok) all_ok = false;
+    if (!ok) success = false;
 
     printf("  [%2" PRIu64 "]  hex: ", i);
     print_hex_bits(&dec->pivot_data[i], FC_BLOCK_SIZE);
@@ -172,7 +169,7 @@ int main(void) {
     }
     if (-1 == save_decoder(OUTPUT_FILE, dec->pivot_data[i], to_write)) {
       fprintf(stderr, "\nError: failed to write block %" PRIu64 " to output file\n", i);
-      all_ok = false;
+      success = false;
       break;
     }
   }
@@ -181,10 +178,10 @@ int main(void) {
 
   printf(
     "\n  Reconstruction : %s\n",
-    all_ok ? "SUCCESS — original file recovered perfectly!" : "FAILURE — one or more blocks do not match!"
+    success ? "SUCCESS — original file recovered perfectly!" : "FAILURE — one or more blocks do not match!"
   );
 
-  if (!all_ok)
+  if (!success)
     remove(OUTPUT_FILE);
   else
     printf("  Output written : %s\n\n", OUTPUT_FILE);
@@ -193,5 +190,5 @@ cleanup:
   close_files();
   finalize_program();
 
-  return all_ok ? 0 : 1;
+  return success ? 0 : 1;
 }

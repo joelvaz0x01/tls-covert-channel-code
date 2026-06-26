@@ -57,8 +57,8 @@ add_subdirectory(test)
 set(ALL_TARGETS
     # Executables
     decoder
+    demo
     tls_encoder
-    encode_decode_demo
     # Tests
     fountain_test
     cbprng_test
