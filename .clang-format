@@ -15,13 +15,25 @@ AlignTrailingComments: true
 IncludeBlocks: Regroup
 IncludeIsMainRegex: "$."
 IncludeCategories:
-  - Regex: "^<(cbprng|fountain_code|hash|openssl_rand_mod|rand|uint128|utils)/"
+  - Regex: "^<cbprng/"
     Priority: 3
-  - Regex: "^<study/"
+  - Regex: "^<fountain_code/"
     Priority: 4
+  - Regex: "^<hash/"
+    Priority: 5
+  - Regex: "^<rand/"
+    Priority: 6
+  - Regex: "^<uint128/"
+    Priority: 7
+  - Regex: "^<utils/"
+    Priority: 8
+  - Regex: "^<openssl_rand_mod/"
+    Priority: 9
+  - Regex: "^<study/"
+    Priority: 10
   - Regex: "^<openssl/"
     Priority: 1
   - Regex: "^<.*"
     Priority: 2
   - Regex: '^".*'
-    Priority: 5
+    Priority: 11
