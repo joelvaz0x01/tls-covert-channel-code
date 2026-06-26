@@ -90,8 +90,12 @@ static inline void vec_xor(vec_t* dst, const vec_t* src, uint64_t n_words) {
  */
 static inline void data_xor(block_t* dst, const block_t* src) {
 #if defined(__SSE2__)
-  _mm_storeu_si128((__m128i*)dst, _mm_xor_si128(_mm_loadu_si128((const __m128i*)dst), _mm_loadu_si128((const __m128i*)src)));
-  dst->w[2] ^= src->w[2];
+  uint64_t i = 0;
+  for (; i + 2 <= BLOCK_WORDS; i += 2)
+    _mm_storeu_si128((__m128i*)(dst->w + i),
+      _mm_xor_si128(_mm_loadu_si128((const __m128i*)(dst->w + i)),
+                    _mm_loadu_si128((const __m128i*)(src->w + i))));
+  for (; i < BLOCK_WORDS; i++) dst->w[i] ^= src->w[i];
 #else
   for (uint64_t i = 0; i < BLOCK_WORDS; i++) dst->w[i] ^= src->w[i];
 #endif
