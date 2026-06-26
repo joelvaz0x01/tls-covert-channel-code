@@ -88,7 +88,7 @@ uint64_t generate_k(uint64_t m, uint64_t seed, uint64_t n, uint64_t* out) {
 
 uint64_t generate_m(uint64_t n) {
   uint64_t m = (uint64_t)round(ALPHA * log((double)n) + EULER);
-  if (m == 0) m = 1;
   if (m >= n) m = n - 1;
+  if (m == 0) m = 1;
   return m;
 }
