@@ -2,7 +2,9 @@
  * Copyright 2026 Joel Vaz. All rights reserved.
  * Licensed under the Apache License 2.0
  *
- * __AVX2__ and __SSE2__ optimizations made with AI assistance
+ * Advanced Vector Extensions (AVX2) and
+ * Streaming SIMD Extensions 4 (SSE4)
+ * optimizations made with AI assistance
  */
 
 #ifndef FOUNTAIN_CODE_VEC_OPS_H
@@ -18,6 +20,12 @@
 
 #include "utils.h"
 
+/**
+ * Count the trailing zeros in a 64-bit integer.
+ *
+ * @param value The 64-bit integer to count trailing zeros in.
+ * @return The number of trailing zeros.
+ */
 static inline int ctz64(uint64_t value) {
 #ifdef _MSC_VER
   unsigned long index;
@@ -28,14 +36,34 @@ static inline int ctz64(uint64_t value) {
 #endif
 }
 
+/**
+ * Test if a bit is set in a vector.
+ *
+ * @param v Pointer to the vector.
+ * @param bit The index of the bit to test.
+ * @return True if the bit is set, false otherwise.
+ */
 static inline bool vec_test(const vec_t* v, uint64_t bit) {
   return (v->w[bit / 64] >> (bit % 64)) & 1;
 }
 
+/**
+ * Set a bit in a vector to 1.
+ *
+ * @param v Pointer to the vector.
+ * @param bit The index of the bit to set.
+ */
 static inline void vec_set(vec_t* v, uint64_t bit) {
   v->w[bit / 64] |= (uint64_t)1 << (bit % 64);
 }
 
+/**
+ * Perform XOR operation on two vectors.
+ *
+ * @param dst Pointer to the destination vector.
+ * @param src Pointer to the source vector.
+ * @param n_words Number of words in the vectors.
+ */
 static inline void vec_xor(vec_t* dst, const vec_t* src, uint64_t n_words) {
 #if defined(__AVX2__)
   uint64_t i = 0;
@@ -54,6 +82,12 @@ static inline void vec_xor(vec_t* dst, const vec_t* src, uint64_t n_words) {
 #endif
 }
 
+/**
+ * Perform XOR operation on two Fountain Code data.
+ *
+ * @param dst Pointer to the destination block.
+ * @param src Pointer to the source block.
+ */
 static inline void data_xor(block_t* dst, const block_t* src) {
 #if defined(__SSE2__)
   _mm_storeu_si128((__m128i*)dst, _mm_xor_si128(_mm_loadu_si128((const __m128i*)dst), _mm_loadu_si128((const __m128i*)src)));
@@ -63,6 +97,12 @@ static inline void data_xor(block_t* dst, const block_t* src) {
 #endif
 }
 
+/**
+ * Zero out the words of a vector.
+ *
+ * @param v Pointer to the vector.
+ * @param n_words Number of words in the vector.
+ */
 static inline void vec_zero(vec_t* v, uint64_t n_words) {
 #if defined(__AVX2__)
   __m256i z = _mm256_setzero_si256();
@@ -81,6 +121,42 @@ static inline void vec_zero(vec_t* v, uint64_t n_words) {
 #endif
 }
 
+/**
+ * Find the least significant bit (LSB) of a vector
+ * using SSE4.2 instructions.
+ *
+ * @param w Pointer to the vector words.
+ * @param n_words Number of words in the vector.
+ * @return The index of the LSB, or -1 if the vector is all zero.
+ */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((target("sse4.2")))
+#endif
+static inline int64_t vec_lsb_sse4_2(const uint64_t* w, uint64_t n_words) {
+  __m128i z = _mm_setzero_si128();
+  uint64_t i = 0;
+  for (; i + 2 <= n_words; i += 2) {
+    int m = _mm_movemask_epi8(
+      _mm_cmpeq_epi64(_mm_load_si128((const __m128i*)(w + i)), z)
+    );
+    if (m != 0xFFFF) {
+      if (w[i]) return (int64_t)(64 * i + (uint64_t)ctz64(w[i]));
+      if (w[i + 1]) return (int64_t)(64 * (i + 1) + (uint64_t)ctz64(w[i + 1]));
+    }
+  }
+  if (i < n_words && w[i])
+    return (int64_t)(64 * i + (uint64_t)ctz64(w[i]));
+  return -1;
+}
+
+/**
+ * Main function that finds the least significant bit (LSB)
+ * of a vector.
+ *
+ * @param v Pointer to the vector.
+ * @param n_words Number of words in the vector.
+ * @return The index of the LSB, or -1 if the vector is all zero.
+ */
 static inline int64_t vec_lsb(const vec_t* v, uint64_t n_words) {
 #if defined(__AVX2__)
   __m256i z = _mm256_setzero_si256();
@@ -97,19 +173,10 @@ static inline int64_t vec_lsb(const vec_t* v, uint64_t n_words) {
   for (; i < n_words; i++)
     if (v->w[i]) return (int64_t)(64 * i + (uint64_t)ctz64(v->w[i]));
 #elif defined(__SSE2__)
-  __m128i z = _mm_setzero_si128();
-  uint64_t i = 0;
-  for (; i + 2 <= n_words; i += 2) {
-    int m = _mm_movemask_epi8(
-      _mm_cmpeq_epi64(_mm_load_si128((const __m128i*)(v->w + i)), z)
-    );
-    if (m != 0xFFFF) {
-      if (v->w[i]) return (int64_t)(64 * i + (uint64_t)ctz64(v->w[i]));
-      if (v->w[i + 1]) return (int64_t)(64 * (i + 1) + (uint64_t)ctz64(v->w[i + 1]));
-    }
-  }
-  if (i < n_words && v->w[i])
-    return (int64_t)(64 * i + (uint64_t)ctz64(v->w[i]));
+  if (cpu_has_sse4_2())
+    return vec_lsb_sse4_2(v->w, n_words);
+  for (uint64_t i = 0; i < n_words; i++)
+    if (v->w[i]) return (int64_t)(64 * i + (uint64_t)ctz64(v->w[i]));
 #else
   for (uint64_t i = 0; i < n_words; i++)
     if (v->w[i]) return (int64_t)(64 * i + (uint64_t)ctz64(v->w[i]));
