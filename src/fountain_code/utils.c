@@ -31,13 +31,15 @@ int decoder_init(decoder_t* dec, const uint64_t n) {
   dec->pivot_sel = NULL;
   dec->pivot_data = NULL;
   dec->scratch_sel = NULL;
+  dec->workspace = NULL;
 
   dec->pivot_present = calloc((size_t)n, sizeof(bool));
   dec->pivot_sel = calloc((size_t)n, sizeof(vec_t));
   dec->pivot_data = calloc((size_t)n, sizeof(block_t));
   dec->scratch_sel = calloc(1, sizeof(vec_t));
+  dec->workspace = calloc(1, sizeof(vec_t));
 
-  if (NULL == dec->pivot_present || NULL == dec->pivot_sel || NULL == dec->pivot_data || NULL == dec->scratch_sel) {
+  if (NULL == dec->pivot_present || NULL == dec->pivot_sel || NULL == dec->pivot_data || NULL == dec->scratch_sel || NULL == dec->workspace) {
     decoder_destroy(dec);
     return -1;
   }
@@ -52,6 +54,7 @@ void decoder_destroy(decoder_t* dec) {
   free(dec->pivot_sel);
   free(dec->pivot_data);
   free(dec->scratch_sel);
+  free(dec->workspace);
 
   dec->pivot_present = NULL;
   dec->pivot_sel = NULL;

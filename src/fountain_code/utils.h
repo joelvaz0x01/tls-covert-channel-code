@@ -63,6 +63,7 @@ typedef struct {
   vec_t* pivot_sel;
   block_t* pivot_data;
   vec_t* scratch_sel;
+  vec_t* workspace;
 } decoder_t;
 
 /**

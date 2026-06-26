@@ -37,10 +37,9 @@ bool decoder_feed(decoder_t* dec, const packet_t* pkt) {
       dec->remaining--;
       return true;
     }
-    vec_t tmp;
     for (uint64_t j = 0; j < dec->n_words; j++)
-      tmp.w[j] = dec->pivot_sel[i].w[j];
-    vec_xor(sel, &tmp, dec->n_words);
+      dec->workspace->w[j] = dec->pivot_sel[i].w[j];
+    vec_xor(sel, dec->workspace, dec->n_words);
     data_xor(&dat, &dec->pivot_data[i]);
   }
 }
