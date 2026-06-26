@@ -14,8 +14,10 @@
 #include <fountain_code/encoder.h>
 #include <fountain_code/settings.h>
 #include <fountain_code/vec_ops.h>
+
 #include <rand/rand128.h>
 #include <rand/system.h>
+
 #include <utils/utils.h>
 
 void run_test(uint64_t n) {
@@ -37,18 +39,15 @@ void run_test(uint64_t n) {
     src_bytes[i] = (unsigned char)(rand128_between(0, 255));
   }
 
-  seed64_system();
+  seed128_system();
   int total_sent = 0;
 
   /* encode */
   while (dec->remaining != 0) {
-    uint64_t k = generate_k(m, rand128(), n, k_list);
+    uint64_t k = construct_k(rand128(), m, n, n_words, NULL);
+    for (uint64_t i = 0; i < k; i++) buffer[i] = src[k_list[i]];
+
     packet_t pkt;
-    vec_zero(dec->scratch_sel, n_words);
-    for (uint64_t i = 0; i < k; i++) {
-      vec_set(dec->scratch_sel, k_list[i]);
-      buffer[i] = src[k_list[i]];  // review
-    }
     encode_packet(&pkt, total_sent, k, buffer);
     decoder_feed(dec, &pkt);
     total_sent++;
