@@ -1,4 +1,5 @@
 add_executable(fountain_test test_fountain.c)
+
 target_link_libraries(fountain_test PRIVATE
   fountain_code_lib
   rand_lib

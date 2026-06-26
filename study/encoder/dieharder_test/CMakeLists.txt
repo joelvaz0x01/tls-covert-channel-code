@@ -1,16 +1,12 @@
-add_executable(encoder_dieharder
-  encoder_generator.c
-  ${CMAKE_SOURCE_DIR}/src/fountain_code/encode.c
-  ${CMAKE_SOURCE_DIR}/src/fountain_code/utils.c
-)
+add_executable(encoder_dieharder encoder_generator.c)
 
 target_link_libraries(encoder_dieharder PRIVATE
+  fountain_code_lib
   cbprng_lib
   hash_lib
   rand_lib
   uint128_lib
   generic_utils
-  m
 )
 
 target_include_directories(encoder_dieharder PRIVATE

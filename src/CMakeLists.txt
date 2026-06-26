@@ -5,7 +5,7 @@ add_subdirectory(rand)
 add_subdirectory(uint128)
 add_subdirectory(utils)
 
-# executables
+
 add_executable(tls_encoder tls_encoder.c)
 target_link_libraries(tls_encoder PRIVATE
   fountain_code_lib

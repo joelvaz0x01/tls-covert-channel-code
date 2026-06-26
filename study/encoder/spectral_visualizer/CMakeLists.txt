@@ -1,18 +1,12 @@
-add_executable(encoder_spectral_visualizer
-  encoder_spectral_visualizer.c
-  ${CMAKE_SOURCE_DIR}/src/fountain_code/decode.c
-  ${CMAKE_SOURCE_DIR}/src/fountain_code/encode.c
-  ${CMAKE_SOURCE_DIR}/src/fountain_code/utils.c
-)
+add_executable(encoder_spectral_visualizer encoder_spectral_visualizer.c)
 
 target_link_libraries(encoder_spectral_visualizer PRIVATE
   spectral_visualizer
+  fountain_code_lib
   cbprng_lib
   hash_lib
   rand_lib
-  uint128_lib
   generic_utils
-  m
 )
 
 target_include_directories(encoder_spectral_visualizer PRIVATE ${CMAKE_SOURCE_DIR}/src)

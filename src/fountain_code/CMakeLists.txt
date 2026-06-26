@@ -1,11 +1,13 @@
-add_library(fountain_code_lib OBJECT
-  encode.c
-  decode.c
-  utils.c
+add_library(fountain_code_lib INTERFACE)
+
+target_sources(fountain_code_lib INTERFACE
+  ${CMAKE_CURRENT_LIST_DIR}/encode.c
+  ${CMAKE_CURRENT_LIST_DIR}/decode.c
+  ${CMAKE_CURRENT_LIST_DIR}/utils.c
 )
 
-target_include_directories(fountain_code_lib PUBLIC
+target_include_directories(fountain_code_lib INTERFACE
   ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
 
-target_link_libraries(fountain_code_lib PUBLIC m)
+target_link_libraries(fountain_code_lib INTERFACE m)

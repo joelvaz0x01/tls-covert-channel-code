@@ -1,4 +1,5 @@
 add_executable(cbprng_test test_cbprng.c)
+
 target_link_libraries(cbprng_test PRIVATE
   cbprng_lib
   rand_lib

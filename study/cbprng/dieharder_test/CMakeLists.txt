@@ -9,18 +9,13 @@ foreach(CASE IN LISTS TEST_CASES)
   list(GET CASE_LIST 1 LAYERS)
   set(TARGET_NAME cbprng_dieharder_${BITS}_${LAYERS})
 
-  add_executable(${TARGET_NAME}
-    cbprng_generator.c
-    ${CMAKE_SOURCE_DIR}/src/cbprng/cbprng.c
-    ${CMAKE_SOURCE_DIR}/src/cbprng/p_box.c
-    ${CMAKE_SOURCE_DIR}/src/cbprng/s_box.c
-  )
+  add_executable(${TARGET_NAME} cbprng_generator.c)
 
   target_link_libraries(${TARGET_NAME} PRIVATE
+    cbprng_lib
     rand_lib
     uint128_lib
     generic_utils
-    m
   )
 
   target_include_directories(
