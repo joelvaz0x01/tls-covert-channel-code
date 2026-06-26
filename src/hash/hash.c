@@ -49,7 +49,7 @@ int hash_compute_max_bits(const hash_algo_t* algo, const void* data, size_t bit_
     return 0;
   }
 
-  if (!hash_compute(algo, data, bit_len, full_digest)) {
+  if (0 == hash_compute(algo, data, bit_len, full_digest)) {
     free(full_digest);
     return 0;
   }

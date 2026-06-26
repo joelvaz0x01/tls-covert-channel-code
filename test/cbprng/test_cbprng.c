@@ -11,6 +11,7 @@
 #include <cbprng/p_box.h>
 #include <cbprng/s_box.h>
 #include <cbprng/settings.h>
+
 #include <rand/system.h>
 
 #define MAX_TEST_BITS 24
