@@ -5,6 +5,7 @@
 
 #include <math.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -22,7 +23,7 @@ static int cmp_uint64(const void* a, const void* b) {
 #include "utils.h"
 #include "vec_ops.h"
 
-int decoder_init(decoder_t* dec, uint64_t n) {
+int decoder_init(decoder_t* dec, const uint64_t n) {
   dec->n = n;
   dec->n_words = (n + 63) / 64;
   dec->remaining = n;
@@ -31,9 +32,9 @@ int decoder_init(decoder_t* dec, uint64_t n) {
   dec->pivot_data = NULL;
   dec->scratch_sel = NULL;
 
-  dec->pivot_present = calloc(n, sizeof(bool));
+  dec->pivot_present = calloc((size_t)n, sizeof(bool));
   dec->pivot_sel = calloc((size_t)n, sizeof(vec_t));
-  dec->pivot_data = calloc(n, sizeof(block_t));
+  dec->pivot_data = calloc((size_t)n, sizeof(block_t));
   dec->scratch_sel = calloc(1, sizeof(vec_t));
 
   if (NULL == dec->pivot_present || NULL == dec->pivot_sel || NULL == dec->pivot_data || NULL == dec->scratch_sel) {
@@ -56,9 +57,19 @@ void decoder_destroy(decoder_t* dec) {
   dec->pivot_sel = NULL;
   dec->pivot_data = NULL;
   dec->scratch_sel = NULL;
+
+  free(dec);
+  dec = NULL;
 }
 
-uint64_t generate_k(uint64_t m, uint64_t seed, uint64_t n, uint64_t* out) {
+uint64_t generate_m(const uint64_t n) {
+  uint64_t m = (uint64_t)round(ALPHA * log((double)n) + EULER);
+  if (m >= n) m = n - 1;
+  if (m == 0) m = 1;
+  return m;
+}
+
+uint64_t generate_k(const uint64_t m, const uint64_t seed, const uint64_t n, uint64_t* out) {
   static vec_t* seen = NULL;
   if (NULL == seen) {
     seen = calloc(1, sizeof(vec_t));
@@ -84,11 +95,4 @@ uint64_t generate_k(uint64_t m, uint64_t seed, uint64_t n, uint64_t* out) {
 
   qsort(out, count, sizeof(uint64_t), cmp_uint64);
   return count;
-}
-
-uint64_t generate_m(uint64_t n) {
-  uint64_t m = (uint64_t)round(ALPHA * log((double)n) + EULER);
-  if (m >= n) m = n - 1;
-  if (m == 0) m = 1;
-  return m;
 }

@@ -72,7 +72,7 @@ typedef struct {
  * @param n Number of source blocks.
  * @return 0 on success, -1 on allocation failure.
  */
-int decoder_init(decoder_t* dec, uint64_t n);
+int decoder_init(decoder_t* dec, const uint64_t n);
 
 /**
  * Destroys the decoder, freeing internal allocations.
@@ -87,7 +87,7 @@ void decoder_destroy(decoder_t* dec);
  * @param n The number of blocks.
  * @return The number of parts to generate.
  */
-uint64_t generate_m(uint64_t n);
+uint64_t generate_m(const uint64_t n);
 
 /**
  * Generates m unique values in [0, n-1] using a seed and stores them
@@ -99,6 +99,6 @@ uint64_t generate_m(uint64_t n);
  * @param out Pointer to the array where generated values will be stored.
  * @return The number of unique values stored in out (may be less than m).
  */
-uint64_t generate_k(uint64_t m, uint64_t seed, uint64_t n, uint64_t* out);
+uint64_t generate_k(const uint64_t m, const uint64_t seed, const uint64_t n, uint64_t* out);
 
 #endif /* FOUNTAIN_CODE_UTILS_H */
