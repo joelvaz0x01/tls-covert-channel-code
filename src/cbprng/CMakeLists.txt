@@ -4,4 +4,6 @@ add_library(cbprng_lib OBJECT
   s_box.c
 )
 
-target_include_directories(cbprng_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
+target_include_directories(cbprng_lib PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/..
+)

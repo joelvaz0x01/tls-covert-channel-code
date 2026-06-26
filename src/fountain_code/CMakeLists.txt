@@ -4,4 +4,8 @@ add_library(fountain_code_lib OBJECT
   utils.c
 )
 
-target_include_directories(fountain_code_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
+target_include_directories(fountain_code_lib PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/..
+)
+
+target_link_libraries(fountain_code_lib PUBLIC m)

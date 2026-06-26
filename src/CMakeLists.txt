@@ -14,7 +14,6 @@ target_link_libraries(tls_encoder PRIVATE
   rand_lib
   uint128_lib
   generic_utils
-  m
 )
 
 add_executable(decoder decoder.c)
@@ -25,7 +24,6 @@ target_link_libraries(decoder PRIVATE
   rand_lib
   uint128_lib
   generic_utils
-  m
 )
 
 add_executable(encode_decode_demo demo.c)
@@ -36,5 +34,4 @@ target_link_libraries(encode_decode_demo PRIVATE
   rand_lib
   uint128_lib
   generic_utils
-  m
 )

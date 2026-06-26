@@ -50,21 +50,8 @@ add_compile_definitions(
 add_subdirectory(src)
 add_subdirectory(study)
 
-# implementation tests
 enable_testing()
-
-add_executable(fountain_test test/fountain_code/test_fountain.c)
-target_link_libraries(fountain_test PRIVATE
-  fountain_code_lib cbprng_lib hash_lib rand_lib uint128_lib generic_utils m
-)
-set_target_properties(fountain_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
-
-
-add_executable(cbprng_test test/cbprng/test_cbprng.c)
-target_link_libraries(cbprng_test PRIVATE
-  fountain_code_lib cbprng_lib hash_lib rand_lib uint128_lib generic_utils
-)
-set_target_properties(cbprng_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
+add_subdirectory(test)
 
 # global target configuration
 set(ALL_TARGETS
@@ -106,25 +93,3 @@ foreach(TGT ${ALL_TARGETS})
     $<$<CONFIG:Release>:NDEBUG>
   )
 endforeach()
-
-# fountain_code module tests
-add_custom_command(
-  TARGET fountain_test POST_BUILD
-  COMMAND ${CMAKE_BINARY_DIR}/tests/fountain_test
-  COMMENT "Running fountain-code implementation tests..."
-)
-add_test(
-  NAME FountainCodeTest
-  COMMAND ${CMAKE_BINARY_DIR}/tests/fountain_test
-)
-
-# cbprng module tests
-add_custom_command(
-  TARGET cbprng_test POST_BUILD
-  COMMAND ${CMAKE_BINARY_DIR}/tests/cbprng_test
-  COMMENT "Running CBPRNG permutation tests..."
-)
-add_test(
-  NAME CBPRNGDuplicateFinder
-  COMMAND ${CMAKE_BINARY_DIR}/tests/cbprng_test
-)
