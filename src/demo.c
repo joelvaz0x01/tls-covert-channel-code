@@ -27,7 +27,7 @@
 #define INPUT_FILE  "input.txt"
 #define OUTPUT_FILE "reconstructed.txt"
 
-static bool success = false;
+static bool success = true;
 
 /**
  * Prints the given selector as a binary string of exactly n characters.
