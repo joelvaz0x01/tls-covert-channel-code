@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #include <rand/rand128.h>
+
 #include <uint128/uint128.h>
 
 #include "bbattery.h"

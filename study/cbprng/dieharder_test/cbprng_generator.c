@@ -7,7 +7,9 @@
 
 #include <cbprng/cbprng.h>
 #include <cbprng/settings.h>
+
 #include <rand/rand128.h>
+
 #include <uint128/uint128.h>
 
 int main(void) {
