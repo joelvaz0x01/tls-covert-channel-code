@@ -19,6 +19,9 @@ static FILE* fp_dst = NULL;
 static long src_size = 0;
 
 uint64_t open_file(const char* filename, const int is_src) {
+  if (is_src && NULL != fp_src) return 1;  /* src already open */
+  if (!is_src && NULL != fp_dst) return 1; /* dst already open */
+
   const char* mode = is_src ? "rb" : "wb";
   FILE** fp = is_src ? &fp_src : &fp_dst;
 
@@ -29,24 +32,21 @@ uint64_t open_file(const char* filename, const int is_src) {
   if (NULL == *fp) return 0;
 #endif
 
-  if (fseek(*fp, 0, SEEK_END) != 0) {
-    fclose(*fp);
-    *fp = NULL;
+  if (0 != fseek(*fp, 0, SEEK_END)) {
+    close_files();
     return 0;
   }
 
   if (is_src) {
     src_size = ftell(*fp);
     if (src_size <= 0) {
-      fclose(*fp);
-      *fp = NULL;
+      close_files();
       return 0;
     }
   }
 
-  if (fseek(*fp, 0, SEEK_SET) != 0) {
-    fclose(*fp);
-    *fp = NULL;
+  if (0 != fseek(*fp, 0, SEEK_SET)) {
+    close_files();
     return 0;
   }
 
@@ -67,31 +67,6 @@ void close_files(void) {
     fclose(fp_dst);
     fp_dst = NULL;
   }
-}
-
-uint64_t calculate_n(const char* filename) {
-  if (NULL == fp_src) {
-    if (0 == open_file(filename, 1)) return 0;
-  }
-
-  long pos = ftell(fp_src);
-  if (fseek(fp_src, 0, SEEK_END) != 0) {
-    close_files();
-    return 0;
-  }
-
-  long size = ftell(fp_src);
-  if (size <= 0) {
-    close_files();
-    return 0;
-  }
-
-  if (fseek(fp_src, pos, SEEK_SET) != 0) {
-    close_files();
-    return 0;
-  }
-
-  return ((uint64_t)size + FC_LEN_BYTES - 1) / FC_LEN_BYTES;
 }
 
 int read_file_part(const char* filename, const uint64_t file_part, block_t* buffer) {
