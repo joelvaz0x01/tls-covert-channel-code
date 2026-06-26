@@ -72,10 +72,12 @@ uint64_t init_program(uint64_t n, uint64_t m) {
 void finalize_program(void) {
   decoder_destroy(dec);
 
+  free(dec);
   free(buffer);
   free(k_list);
   free(g_scratch_pkt);
 
+  dec = NULL;
   buffer = NULL;
   k_list = NULL;
   g_scratch_pkt = NULL;

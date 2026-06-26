@@ -60,9 +60,7 @@ void decoder_destroy(decoder_t* dec) {
   dec->pivot_sel = NULL;
   dec->pivot_data = NULL;
   dec->scratch_sel = NULL;
-
-  free(dec);
-  dec = NULL;
+  dec->workspace = NULL;
 }
 
 uint64_t generate_m(const uint64_t n) {
