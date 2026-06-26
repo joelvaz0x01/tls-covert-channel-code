@@ -16,8 +16,8 @@ target_link_libraries(tls_encoder PRIVATE
   generic_utils
 )
 
-add_executable(decoder decoder.c)
-target_link_libraries(decoder PRIVATE
+add_executable(tls_decoder tls_decoder.c)
+target_link_libraries(tls_decoder PRIVATE
   fountain_code_lib
   cbprng_lib
   hash_lib

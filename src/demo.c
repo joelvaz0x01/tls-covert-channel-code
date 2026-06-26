@@ -20,6 +20,7 @@
 #include <rand/rand128.h>
 #include <rand/system.h>
 
+#include <utils/decoder.h>
 #include <utils/encoder.h>
 #include <utils/file.h>
 #include <utils/print.h>
@@ -161,12 +162,7 @@ int main(void) {
     print_ascii_bits(&dec->pivot_data[i], FC_BLOCK_SIZE);
     printf("\"  [%s]\n", ok ? " OK " : "FAIL");
 
-    size_t to_write = FC_LEN_BYTES;
-    if (i == n - 1) {
-      uint8_t* p = (uint8_t*)&dec->pivot_data[i];
-      while (to_write > 1 && p[to_write - 1] == 0)
-        to_write--;
-    }
+    size_t to_write = bytes_to_write(i, n);
     if (-1 == save_decoder(OUTPUT_FILE, dec->pivot_data[i], to_write)) {
       fprintf(stderr, "\nError: failed to write block %" PRIu64 " to output file\n", i);
       success = false;

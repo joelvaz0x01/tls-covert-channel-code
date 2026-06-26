@@ -1,4 +1,5 @@
 add_library(generic_utils OBJECT
+  decoder.c
   encoder.c
   file.c
   print.c
