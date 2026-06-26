@@ -46,7 +46,14 @@ int main(int argc, char* argv[]) {
   while (0 != dec->remaining) {
     uint64_t seed = generate_cbprng(&cbprng, counter_value);
     tls_mod_rand_t data = modified_random_field(0, &seed, m, n, n_words, src_file);
-    save_encoder(dest_file, data);
+
+    if (0 != save_encoder(dest_file, data)) {
+      fprintf(stderr, "[-] failed to write block %lu\n", counter_value);
+      close_files();
+      finalize_program();
+      exit(EXIT_FAILURE);
+    }
+
     counter_value++;
   }
 
