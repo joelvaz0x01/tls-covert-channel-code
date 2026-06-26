@@ -151,8 +151,24 @@ int save_decoder(const char* filename, const block_t data, size_t n_bytes) {
 void write_fountain(const tls_mod_rand_t data, FILE* out) {
   fwrite(&data.cbprng, sizeof(mask_t), 1, out);
   for (int i = 0; i < BLOCK_WORDS - 1; i++) {
-    fwrite(&data.fountain_code.w[i], sizeof(uint64_t), 1, out);
+    fwrite(&data.enc_fc.w[i], sizeof(uint64_t), 1, out);
   }
-  fwrite(&data.fountain_code.w[BLOCK_WORDS - 1], sizeof(uint32_t), 1, out);
+  fwrite(&data.enc_fc.w[BLOCK_WORDS - 1], sizeof(uint32_t), 1, out);
   fwrite(&data.hash, sizeof(uint32_t), 1, out);
+}
+
+int read_tls_data(tls_mod_rand_t* data) {
+  if (NULL == fp_src) return -1;
+
+  if (1 != fread(&data->cbprng, sizeof(mask_t), 1, fp_src)) return -1;
+  for (int i = 0; i < BLOCK_WORDS - 1; i++) {
+    if (1 != fread(&data->enc_fc.w[i], sizeof(uint64_t), 1, fp_src)) return -1;
+  }
+  uint32_t w_last;
+  if (1 != fread(&w_last, sizeof(uint32_t), 1, fp_src)) return -1;
+  data->enc_fc.w[BLOCK_WORDS - 1] = w_last;
+
+  if (1 != fread(&data->hash, sizeof(uint32_t), 1, fp_src)) return -1;
+
+  return 0;
 }

@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include <cbprng/cbprng.h>
+
 #include <fountain_code/utils.h>
 
 #include "settings.h"
@@ -34,16 +35,25 @@ extern packet_t* g_scratch_pkt; /* scratch packet for hot path      */
  */
 typedef struct {
   mask_t cbprng;
-  block_t fountain_code;
+  block_t enc_fc;
   uint32_t hash;
 } tls_mod_rand_t;
+
+/**
+ * Calculates the number of file part based on the file size.
+ *
+ * @param filename The name of the file.
+ * @param is_encoder If the caller is the encoder.
+ * @return The number of file parts.
+ */
+uint64_t calculate_n(const char* filename, const bool is_encoder);
 
 /**
  * Initializes the program state.
  *
  * @param n The number of blocks in the fountain code.
  * @param m The size of the output buffer.
- * @return
+ * @return The number of words for the Fountain Code block.
  */
 uint64_t init_program(uint64_t n, uint64_t m);
 
@@ -51,6 +61,18 @@ uint64_t init_program(uint64_t n, uint64_t m);
  * Finalizes the program state.
  */
 void finalize_program(void);
+
+/**
+ * Constructs the k value for the Fountain Code.
+ *
+ * @param seed The seed for the random number generator.
+ * @param m The number of blocks in the Fountain Code.
+ * @param n The number of words in the Fountain Code.
+ * @param n_words The number of words in the scratch buffer.
+ * @param src_file The source file to read from.
+ * @return The k value on success, 0 on failure if src_file is not NULL.
+ */
+uint64_t construct_k(const uint64_t seed, const uint64_t m, const uint64_t n, const uint64_t n_words, const char* src_file);
 
 /**
  * Cypher the Fountain Code.

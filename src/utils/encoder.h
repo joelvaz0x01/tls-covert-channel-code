@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include <cbprng/cbprng.h>
+
 #include <fountain_code/utils.h>
 
 #include "utils.h"
@@ -35,37 +36,15 @@ static inline void init_cbprng(void) {
 }
 
 /**
- * Builds a fountain code packet.
- *
- * @param pkt Pointer to the packet to fill.
- * @param id The packet ID.
- * @param seed The CBPRNG based seed.
- * @param m The number of rows in the fountain code.
- * @param n The number of columns in the fountain code.
- * @param n_words The number of words in the packet.
- */
-void build_fountain(packet_t* pkt, const uint64_t id, uint64_t* seed, const uint64_t m, const uint64_t n, const uint64_t n_words);
-
-/**
  * The final modified TLS random field.
  *
  * @param id File ID.
  * @param m Number of blocks to encode.
  * @param n Number of indices to generate.
  * @param n_words Number of words in the message.
+ * @param src_file Filename of the source file.
  * @return Modified random field.
  */
-tls_mod_rand_t modified_random_field(const uint64_t id, uint64_t* seed, const uint64_t m, const uint64_t n, const uint64_t n_words);
-
-/**
- * The final modified TLS random field.
- *
- * @param id File ID.
- * @param m Number of blocks to encode.
- * @param n Number of indices to generate.
- * @param n_words Number of words in the message.
- * @return Modified random field.
- */
-tls_mod_rand_t modified_random_field(const uint64_t id, uint64_t* seed, const uint64_t m, const uint64_t n, const uint64_t n_words);
+tls_mod_rand_t modified_random_field(const uint64_t id, uint64_t* seed, const uint64_t m, const uint64_t n, const uint64_t n_words, const char* src_file);
 
 #endif /* FC_DECODE_H */

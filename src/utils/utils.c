@@ -3,6 +3,7 @@
  * Licensed under the Apache License 2.0
  */
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -10,7 +11,9 @@
 #include <string.h>
 
 #include <fountain_code/utils.h>
+#include <fountain_code/vec_ops.h>
 
+#include "file.h"
 #include "settings.h"
 #include "utils.h"
 
@@ -18,6 +21,15 @@ decoder_t* dec = NULL;
 block_t* buffer = NULL;
 uint64_t* k_list = NULL;
 packet_t* g_scratch_pkt = NULL;
+
+uint64_t calculate_n(const char* filename, const bool is_encoder) {
+  if (0 == open_file(filename, 1)) return 0;
+
+  if (is_encoder)
+    return ((uint64_t)get_src_size() + FC_LEN_BYTES - 1) / FC_LEN_BYTES;
+
+  return (uint64_t)get_src_size() / RANDOM_FIELD_LEN_BYTES;
+}
 
 uint64_t init_program(uint64_t n, uint64_t m) {
   dec = calloc(1, sizeof(decoder_t));
@@ -60,15 +72,27 @@ uint64_t init_program(uint64_t n, uint64_t m) {
 void finalize_program(void) {
   decoder_destroy(dec);
 
-  free(dec);
   free(buffer);
   free(k_list);
   free(g_scratch_pkt);
 
-  dec = NULL;
   buffer = NULL;
   k_list = NULL;
   g_scratch_pkt = NULL;
+}
+
+uint64_t construct_k(const uint64_t seed, const uint64_t m, const uint64_t n, const uint64_t n_words, const char* src_file) {
+  uint64_t k = generate_k(m, seed, n, k_list);
+  vec_zero(dec->scratch_sel, n_words);
+  for (uint64_t i = 0; i < k; i++) {
+    vec_set(dec->scratch_sel, k_list[i]);
+
+    if (NULL != src_file)
+      if (-1 == read_file_part(src_file, k_list[i], &buffer[i]))
+        return 0;
+  }
+
+  return k;
 }
 
 void cypher_fountain(block_t* fc, const uint64_t seed, const uint64_t file_id) {
@@ -83,9 +107,8 @@ void cypher_fountain(block_t* fc, const uint64_t seed, const uint64_t file_id) {
 
   HASH_ALGORITHM->final(&ctx, digest);
 
-  for (int i = 0; i < FC_LEN / 8; i++) {
+  for (int i = 0; i < FC_LEN / 8; i++)
     ((uint8_t*)fc)[i] ^= digest[i];
-  }
 }
 
 void build_hash(const block_t* enc_b, uint64_t seed, const uint64_t file_id, const char* is_invalid, uint32_t* digest_out) {

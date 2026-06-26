@@ -7,7 +7,9 @@
 #define SETTINGS_H
 
 #include <cbprng/settings.h>
+
 #include <fountain_code/settings.h>
+
 #include <hash/settings.h>
 
 /* by default use system random to seed CBPRNG */
@@ -21,17 +23,19 @@
 #define HASH_ALGORITHM SHA256
 #endif
 
-#define KEY        "MY_SUPER_SECRET_KEY_FOR_MODIFIED_TLS_2026"
-#define KEY_LEN    ((sizeof(KEY) - 1) * 8)
+#define KEY              "MY_SUPER_SECRET_KEY_FOR_MODIFIED_TLS_2026"
+#define KEY_LEN          ((sizeof(KEY) - 1) * 8)
 
-#define CBPRNG_LEN CBPRNG_BITS
-#define FC_LEN     FC_BLOCK_SIZE
-#define HASH_LEN   HASH_OUTPUT_SIZE
+#define CBPRNG_LEN       CBPRNG_BITS
+#define FC_LEN           FC_BLOCK_SIZE
+#define HASH_LEN         HASH_OUTPUT_SIZE
 
-#if (CBPRNG_BITS + FC_BLOCK_SIZE + HASH_OUTPUT_SIZE != 256)
+#define RANDOM_FIELD_LEN (CBPRNG_LEN + FC_LEN + HASH_LEN)
+#if (RANDOM_FIELD_LEN != 256)
 #error "Random field must be 256 bits (32 bytes)"
 #endif
 
-#define FC_LEN_BYTES (FC_LEN / 8)
+#define FC_LEN_BYTES           (FC_LEN / 8)
+#define RANDOM_FIELD_LEN_BYTES (RANDOM_FIELD_LEN / 8)
 
 #endif /* SETTINGS_H */

@@ -29,14 +29,6 @@ uint64_t open_file(const char* filename, const int is_src);
 void close_files(void);
 
 /**
- * Calculates the number of file parts based on the file size.
- *
- * @param filename The name of the file.
- * @return The number of file parts.
- */
-uint64_t calculate_n(const char* filename);
-
-/**
  * Reads a block from a file in binary mode.
  *
  * @param filename The name of the file to read.
@@ -79,5 +71,13 @@ int save_decoder(const char* filename, const block_t data, size_t n_bytes);
  * @param out The output file.
  */
 void write_fountain(const tls_mod_rand_t mod_rand, FILE* out);
+
+/**
+ * Reads a tls_mod_rand_t data from the source file.
+ *
+ * @param record Pointer to the record to fill.
+ * @return 0 on success, -1 on EOF/error.
+ */
+int read_tls_data(tls_mod_rand_t* record);
 
 #endif /* UTILS_FILE_H */
