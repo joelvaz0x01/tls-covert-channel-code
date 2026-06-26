@@ -29,23 +29,15 @@ void write_dat_2d(const char* path, double* x, size_t n);
 void write_dat_3d(const char* path, double* x, size_t n);
 
 /**
- * Generate an Octave/MATLAB script for a 2D scatter plot.
+ * Generate an Octave/MATLAB script with 2D and 3D scatter plots side by side.
  * @param m_path output .m script path
- * @param dat_name name/path of the .dat file to load
+ * @param dat_name_2d name/path of the 2D .dat file to load
+ * @param dat_name_3d name/path of the 3D .dat file to load
  * @param pdf_name name/path of the output PDF
- * @param n number of samples (shown in plot title)
- * @param title plot title string (e.g. "Visual Spectral Test - CBPRNG (2D)")
+ * @param n number of samples (shown in plot titles)
+ * @param title_2d 2D subplot title string
+ * @param title_3d 3D subplot title string
  */
-void write_m_2d(const char* m_path, const char* dat_name, const char* pdf_name, size_t n, const char* title);
-
-/**
- * Generate an Octave/MATLAB script for a 3D scatter plot.
- * @param m_path output .m script path
- * @param dat_name name/path of the .dat file to load
- * @param pdf_name name/path of the output PDF
- * @param n number of samples (shown in plot title)
- * @param title plot title string (e.g. "Visual Spectral Test - CBPRNG (3D)")
- */
-void write_m_3d(const char* m_path, const char* dat_name, const char* pdf_name, size_t n, const char* title);
+void write_m_2d3d(const char* m_path, const char* dat_name_2d, const char* dat_name_3d, const char* pdf_name, size_t n, const char* title_2d, const char* title_3d);
 
 #endif /* STUDY_SPECTRAL_VISUALIZER_H */

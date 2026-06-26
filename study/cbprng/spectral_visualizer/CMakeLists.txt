@@ -17,22 +17,15 @@ set_target_properties(cbprng_spectral_visualizer PROPERTIES
 
 add_custom_command(
   TARGET cbprng_spectral_visualizer POST_BUILD
-  COMMAND ${SPECTRAL_OUT_DIR}/cbprng_spectral_visualizer 2d 1000
-  COMMAND octave --no-gui cbprng_spectral_plot_2d.m
+  COMMAND ${SPECTRAL_OUT_DIR}/cbprng_spectral_visualizer 50000
+  COMMAND octave --no-gui cbprng_spectral_plot.m
+  COMMAND ${CMAKE_COMMAND} -E copy
+    cbprng_spectral.png
+    ${CMAKE_SOURCE_DIR}/study_results/spectral_visualizer/cbprng/cbprng_spectral.png
   COMMAND ${CMAKE_COMMAND} -E remove -f
     cbprng_spectral_data_2d.dat
-    cbprng_spectral_plot_2d.m
-  WORKING_DIRECTORY ${SPECTRAL_OUT_DIR}
-  COMMENT "Generating cbprng_spectral_2d.pdf..."
-)
-
-add_custom_command(
-  TARGET cbprng_spectral_visualizer POST_BUILD
-  COMMAND ${SPECTRAL_OUT_DIR}/cbprng_spectral_visualizer 3d 1000
-  COMMAND octave --no-gui cbprng_spectral_plot_3d.m
-  COMMAND ${CMAKE_COMMAND} -E remove -f
     cbprng_spectral_data_3d.dat
-    cbprng_spectral_plot_3d.m
+    cbprng_spectral_plot.m
   WORKING_DIRECTORY ${SPECTRAL_OUT_DIR}
-  COMMENT "Generating cbprng_spectral_3d.pdf..."
+  COMMENT "Generating cbprng_spectral.png..."
 )
