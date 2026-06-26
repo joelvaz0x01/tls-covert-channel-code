@@ -56,9 +56,9 @@ add_subdirectory(test)
 # global target configuration
 set(ALL_TARGETS
     # Executables
-    decoder
     demo
     tls_encoder
+    tls_decoder
     # Tests
     fountain_test
     cbprng_test
