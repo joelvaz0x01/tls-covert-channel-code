@@ -77,7 +77,9 @@ int main(int argc, char* argv[]) {
     g_scratch_pkt->data = rec.enc_fc;
 
     decoder_feed(dec, g_scratch_pkt);
+    fprintf(stderr, "[*] decoding: %lu/%lu\r", n - dec->remaining, n);
   }
+  fprintf(stderr, "\n");
 
   if (0 != dec->remaining) {
     fprintf(stderr, "[-] not enough packets to reconstruct (remaining=%lu)\n", dec->remaining);
@@ -94,7 +96,9 @@ int main(int argc, char* argv[]) {
       success = false;
       goto cleanup;
     }
+    fprintf(stderr, "[*] writing: %lu/%lu\r", i + 1, n);
   }
+  fprintf(stderr, "\n[!] Decoder finished successfully!\n");
 
 cleanup:
   close_files();

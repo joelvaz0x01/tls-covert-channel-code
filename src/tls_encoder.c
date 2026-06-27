@@ -48,14 +48,16 @@ int main(int argc, char* argv[]) {
     tls_mod_rand_t data = modified_random_field(0, &seed, m, n, n_words, src_file);
 
     if (0 != save_encoder(dest_file, data)) {
-      fprintf(stderr, "[-] failed to write block %lu\n", counter_value);
+      fprintf(stderr, "\n[-] failed to write block %lu\n", counter_value);
       close_files();
       finalize_program();
       exit(EXIT_FAILURE);
     }
 
     counter_value++;
+    fprintf(stderr, "[*] encoding: %lu/%lu\r", n - dec->remaining, n);
   }
+  fprintf(stderr, "\n[!] Encoder finished successfully!\n");
 
   close_files();
   finalize_program();
