@@ -8,20 +8,23 @@
 
 #include <stdint.h>
 
+/** Width of the CBPRNG in bits. */
 #ifndef CBPRNG_BITS
 #define CBPRNG_BITS 64
 #endif
 
+/** Number of input/output bits per S-box. */
 #ifndef S_BOX_BITS
 #define S_BOX_BITS 4
 #endif
 
+/** Number of S-box layers in the generator. */
 #ifndef N_LAYERS
 #define N_LAYERS 16
 #endif
 
 #if S_BOX_BITS < 3
-#error "Bits per S-box must be at least 3"
+#error "S_BOX_BITS must be at least 3"
 #endif
 
 #if CBPRNG_BITS > 64
@@ -29,10 +32,10 @@
 #endif
 
 #if CBPRNG_BITS % S_BOX_BITS != 0
-#error "CBPRNG_BITS is not a multiple of S_BOX_BITS"
+#error "CBPRNG_BITS must be a multiple of S_BOX_BITS"
 #endif
 
-/* optimize variable to use the smallest type that fits the number of bits */
+/* Use the smallest unsigned type that can hold a permutation index. */
 #if S_BOX_BITS <= 8
 typedef uint8_t permutation_t;
 #elif S_BOX_BITS <= 16

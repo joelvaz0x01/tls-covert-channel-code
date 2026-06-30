@@ -9,10 +9,18 @@
 #include "settings.h"
 
 /**
- * @struct p_box_t
- * Represents a pseudo-random P-box.
+ * Initializes a pseudo-random permutation for a P-box.
  *
- * @var a The permutation array.
+ * @param n Number of elements in the permutation.
+ * @param a Output array receiving the permutation.
+ */
+void pseudo_random_permutation(int n, permutation_t* a);
+
+/**
+ * @struct p_box_t
+ * Represents a pseudo-random P-box (permutation box).
+ *
+ * @var a Permutation array: output position for each of the CBPRNG_BITS inputs.
  */
 typedef struct {
   permutation_t a[CBPRNG_BITS];
@@ -23,6 +31,8 @@ typedef struct {
  *
  * @param p Pointer to the P-box to initialize.
  */
-void pseudo_random_p_box(p_box_t* p);
+static inline void pseudo_random_p_box(p_box_t* p) {
+  pseudo_random_permutation(CBPRNG_BITS, p->a);
+}
 
 #endif /* CBPRNG_P_BOX_H */

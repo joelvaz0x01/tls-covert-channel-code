@@ -10,9 +10,9 @@
 
 /**
  * @struct s_box_t
- * Represents a pseudo-random S-box.
+ * Pseudo-random substitution box.
  *
- * @var a The permutation array.
+ * @var a Permutation array of size 2^S_BOX_BITS.
  */
 typedef struct {
   permutation_t a[1 << S_BOX_BITS];
