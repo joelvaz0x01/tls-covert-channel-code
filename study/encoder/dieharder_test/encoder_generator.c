@@ -37,20 +37,22 @@ int main(int argc, char* argv[]) {
   }
 
   uint64_t m = generate_m(n);
+  uint64_t n_words = init_program(n, m);
+
   init_cbprng();
 
   for (uint64_t id = 0;; id++) {
-    uint64_t n_words = init_program(n, m);
     while (0 != dec->remaining) {
       uint64_t seed = generate_cbprng(&cbprng, counter_value);
       tls_mod_rand_t mod_rand = modified_random_field(id, &seed, m, n, n_words, filename);
       write_fountain(mod_rand, stdout);
       counter_value++;
     }
-    finalize_program();
+    n_words = reset_program(n);
   }
 
   close_files();
+  finalize_program();
 
   return 0;
 }

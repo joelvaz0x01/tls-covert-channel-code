@@ -42,6 +42,8 @@ int main(int argc, char* argv[]) {
   }
 
   uint64_t m = generate_m(n);
+  uint64_t n_words = init_program(n, m);
+
   init_cbprng();
 
   double* x = (double*)malloc(n_samples * sizeof(double));
@@ -53,7 +55,6 @@ int main(int argc, char* argv[]) {
 
   size_t collected = 0;
   for (uint64_t id = 0; collected < n_samples; id++) {
-    uint64_t n_words = init_program(n, m);
     while (0 != dec->remaining && collected < n_samples) {
       uint64_t seed = generate_cbprng(&cbprng, counter_value);
       if (0 == construct_k(seed, m, n, n_words, filename)) {
@@ -70,10 +71,11 @@ int main(int argc, char* argv[]) {
       collected++;
       counter_value++;
     }
-    finalize_program();
+    n_words = reset_program(n);
   }
 
   close_files();
+  finalize_program();
 
   write_dat_2d("encoder_spectral_data_2d.dat", x, n_samples);
   write_dat_3d("encoder_spectral_data_3d.dat", x, n_samples);

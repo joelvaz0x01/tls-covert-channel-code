@@ -35,19 +35,21 @@ uint64_t init_program(uint64_t n, uint64_t m) {
   dec = calloc(1, sizeof(decoder_t));
   if (NULL == dec) {
     fprintf(stderr, "[-] could not allocate decoder.\n");
+    close_files();
     exit(EXIT_FAILURE);
   }
 
   if (0 != decoder_init(dec, n)) {
     fprintf(stderr, "[-] could not initialize decoder for n=%lu.\n", n);
-    free(dec);
-    dec = NULL;
+    close_files();
+    finalize_program();
     exit(EXIT_FAILURE);
   }
 
   buffer = calloc((size_t)m, sizeof(block_t));
   if (NULL == buffer) {
     fprintf(stderr, "[-] could not allocate output buffer.\n");
+    close_files();
     finalize_program();
     exit(EXIT_FAILURE);
   }
@@ -55,6 +57,7 @@ uint64_t init_program(uint64_t n, uint64_t m) {
   k_list = malloc(m * sizeof(uint64_t));
   if (NULL == k_list) {
     fprintf(stderr, "[-] could not allocate k_list.\n");
+    close_files();
     finalize_program();
     exit(EXIT_FAILURE);
   }
@@ -62,6 +65,20 @@ uint64_t init_program(uint64_t n, uint64_t m) {
   g_scratch_pkt = calloc(1, sizeof(packet_t));
   if (NULL == g_scratch_pkt) {
     fprintf(stderr, "[-] could not allocate scratch packet.\n");
+    close_files();
+    finalize_program();
+    exit(EXIT_FAILURE);
+  }
+
+  return ((n + 63) / 64);
+}
+
+uint64_t reset_program(uint64_t n) {
+  decoder_destroy(dec);
+
+  if (0 != decoder_init(dec, n)) {
+    fprintf(stderr, "[-] could not re-initialize decoder for n=%lu.\n", n);
+    close_files();
     finalize_program();
     exit(EXIT_FAILURE);
   }
