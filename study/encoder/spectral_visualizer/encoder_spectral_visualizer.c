@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
 
   write_dat_2d("encoder_spectral_data_2d.dat", x, n_samples);
   write_dat_3d("encoder_spectral_data_3d.dat", x, n_samples);
-  write_m_2d3d("encoder_spectral_plot.m", "encoder_spectral_data_2d.dat", "encoder_spectral_data_3d.dat", "encoder_spectral.png", n_samples, "Encoder Spectral Test - Full Modified Random Field (2D)", "Encoder Spectral Test - Full Modified Random Field (3D)");
+  write_m_2d3d("encoder_spectral_plot.m", "encoder_spectral_data_2d.dat", "encoder_spectral_data_3d.dat", "encoder_spectral.png", n_samples - 2, "Encoder Spectral Test - Full Modified Random Field (2D)", "Encoder Spectral Test - Full Modified Random Field (3D)");
   printf("Run: octave --no-gui encoder_spectral_plot.m\n");
 
   free(x);

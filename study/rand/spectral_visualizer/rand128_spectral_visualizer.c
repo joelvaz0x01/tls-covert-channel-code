@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
 
   write_dat_2d("rand128_spectral_data_2d.dat", x, n);
   write_dat_3d("rand128_spectral_data_3d.dat", x, n);
-  write_m_2d3d("rand128_spectral_plot.m", "rand128_spectral_data_2d.dat", "rand128_spectral_data_3d.dat", "rand128_spectral.png", n, "Visual Spectral Test - rand128 (2D)", "Visual Spectral Test - rand128 (3D)");
+  write_m_2d3d("rand128_spectral_plot.m", "rand128_spectral_data_2d.dat", "rand128_spectral_data_3d.dat", "rand128_spectral.png", n - 2, "Visual Spectral Test - rand128 (2D)", "Visual Spectral Test - rand128 (3D)");
   printf("Run: octave --no-gui rand128_spectral_plot.m\n");
 
   free(x);

@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 
   write_dat_2d("cbprng_spectral_data_2d.dat", x, n);
   write_dat_3d("cbprng_spectral_data_3d.dat", x, n);
-  write_m_2d3d("cbprng_spectral_plot.m", "cbprng_spectral_data_2d.dat", "cbprng_spectral_data_3d.dat", "cbprng_spectral.png", n, "Visual Spectral Test - CBPRNG (2D)", "Visual Spectral Test - CBPRNG (3D)");
+  write_m_2d3d("cbprng_spectral_plot.m", "cbprng_spectral_data_2d.dat", "cbprng_spectral_data_3d.dat", "cbprng_spectral.png", n - 2, "Visual Spectral Test - CBPRNG (2D)", "Visual Spectral Test - CBPRNG (3D)");
   printf("Run: octave --no-gui cbprng_spectral_plot.m\n");
 
   free(x);

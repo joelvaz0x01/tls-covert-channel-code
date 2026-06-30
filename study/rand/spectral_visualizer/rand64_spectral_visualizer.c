@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 
   write_dat_2d("rand64_spectral_data_2d.dat", x, n);
   write_dat_3d("rand64_spectral_data_3d.dat", x, n);
-  write_m_2d3d("rand64_spectral_plot.m", "rand64_spectral_data_2d.dat", "rand64_spectral_data_3d.dat", "rand64_spectral.png", n, "Visual Spectral Test - rand64 (2D)", "Visual Spectral Test - rand64 (3D)");
+  write_m_2d3d("rand64_spectral_plot.m", "rand64_spectral_data_2d.dat", "rand64_spectral_data_3d.dat", "rand64_spectral.png", n - 2, "Visual Spectral Test - rand64 (2D)", "Visual Spectral Test - rand64 (3D)");
   printf("Run: octave --no-gui rand64_spectral_plot.m\n");
 
   free(x);

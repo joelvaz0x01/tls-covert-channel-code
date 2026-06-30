@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 
   write_dat_2d("openssl_spectral_data_2d.dat", x, n_samples);
   write_dat_3d("openssl_spectral_data_3d.dat", x, n_samples);
-  write_m_2d3d("openssl_spectral_plot.m", "openssl_spectral_data_2d.dat", "openssl_spectral_data_3d.dat", "openssl_spectral.png", n_samples, "OpenSSL RAND\\_bytes\\_ex Spectral Test (2D)", "OpenSSL RAND\\_bytes\\_ex Spectral Test (3D)");
+  write_m_2d3d("openssl_spectral_plot.m", "openssl_spectral_data_2d.dat", "openssl_spectral_data_3d.dat", "openssl_spectral.png", n_samples - 2, "OpenSSL RAND\\_bytes\\_ex Spectral Test (2D)", "OpenSSL RAND\\_bytes\\_ex Spectral Test (3D)");
   printf("Run: octave --no-gui openssl_spectral_plot.m\n");
 
   free(x);
