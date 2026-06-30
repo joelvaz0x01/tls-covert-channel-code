@@ -8,15 +8,21 @@
 
 #include <stdint.h>
 
+/** Hard upper limit on the number of source blocks. */
 #ifndef MAX_BLOCKS
-#define MAX_BLOCKS 1000 /**< hard upper limit on n */
+#define MAX_BLOCKS 1000
 #endif
 
-#define FC_BLOCK_SIZE 160                         /**< source-block size in bits           */
-#define BLOCK_WORDS   ((FC_BLOCK_SIZE + 63) / 64) /**< number of words in the source-block */
-#define VEC_WORDS     ((MAX_BLOCKS + 63) / 64)    /**< number of words in the vector       */
+/** Size of one source block in bits. */
+#define FC_BLOCK_SIZE 160
 
-/* Constants used to prevent Coupon Collector's Problem */
+/** Words needed to store one source block. */
+#define BLOCK_WORDS   ((FC_BLOCK_SIZE + 63) / 64)
+
+/** Words needed to store a selector vector for MAX_BLOCKS. */
+#define VEC_WORDS     ((MAX_BLOCKS + 63) / 64)
+
+/* Constants for the Coupon Collector's problem mitigation. */
 #define ALPHA         2.5
 #define EULER         0.5772156649015329
 

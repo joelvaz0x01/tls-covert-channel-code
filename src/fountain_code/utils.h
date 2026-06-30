@@ -67,7 +67,7 @@ typedef struct {
 } decoder_t;
 
 /**
- * Initializes the decoder.
+ * Allocates and initializes the decoder state.
  *
  * @param dec Pointer to the decoder structure to initialize.
  * @param n Number of source blocks.
@@ -76,29 +76,43 @@ typedef struct {
 int decoder_init(decoder_t* dec, const uint64_t n);
 
 /**
- * Destroys the decoder, freeing internal allocations.
+ * Frees all memory owned by the decoder.
  *
  * @param dec Pointer to the decoder structure.
  */
 void decoder_destroy(decoder_t* dec);
 
 /**
- * Calculates the number of parts to encode on Fountain Code.
+ * Feeds one fountain-code packet into the Gaussian-elimination solver.
  *
- * @param n The number of blocks.
- * @return The number of parts to generate.
+ * Searches for a new pivot in the packet's selector vector. If a
+ * linearly-independent pivot is found it is stored and true is returned;
+ * if the equation is redundant (linearly dependent) false is returned.
+ *
+ * @param dec Pointer to the decoder state.
+ * @param pkt Pointer to the incoming packet.
+ * @return true if a new pivot was added, false if the packet was redundant.
+ */
+bool decoder_feed(decoder_t* dec, const packet_t* pkt);
+
+/**
+ * Calculates the number of blocks to XOR per encoded packet.
+ *
+ * @param n Number of source blocks.
+ * @return Number of blocks to XOR per packet (always >= 1, < n).
  */
 uint64_t generate_m(const uint64_t n);
 
 /**
- * Generates m unique values in [0, n-1] using a seed and stores them
- * in the out array. Duplicates from the random draws will be discarded.
+ * Draws m unique random indices in [0, n-1] using a given seed.
+ * Duplicates from the random draws are discarded. The results are
+ * sorted ascending before return.
  *
- * @param m The number of values to draw.
- * @param seed The seed for the pseudo-random number generator.
+ * @param m Desired number of values to draw.
+ * @param seed Seed for the PRNG.
  * @param n Upper bound (exclusive) for the generated values.
- * @param out Pointer to the array where generated values will be stored.
- * @return The number of unique values stored in out (may be less than m).
+ * @param out Buffer of at least m elements for the result.
+ * @return The number of unique values written to out (may be < m).
  */
 uint64_t generate_k(const uint64_t m, const uint64_t seed, const uint64_t n, uint64_t* out);
 

@@ -18,6 +18,10 @@
 #include <string.h>
 #endif
 
+#if defined(__SSE2__) && !defined(__AVX2__)
+#include "cpu.h"
+#endif
+
 #include "utils.h"
 
 /**
@@ -92,9 +96,7 @@ static inline void data_xor(block_t* dst, const block_t* src) {
 #if defined(__SSE2__)
   uint64_t i = 0;
   for (; i + 2 <= BLOCK_WORDS; i += 2)
-    _mm_storeu_si128((__m128i*)(dst->w + i),
-      _mm_xor_si128(_mm_loadu_si128((const __m128i*)(dst->w + i)),
-                    _mm_loadu_si128((const __m128i*)(src->w + i))));
+    _mm_storeu_si128((__m128i*)(dst->w + i), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(dst->w + i)), _mm_loadu_si128((const __m128i*)(src->w + i))));
   for (; i < BLOCK_WORDS; i++) dst->w[i] ^= src->w[i];
 #else
   for (uint64_t i = 0; i < BLOCK_WORDS; i++) dst->w[i] ^= src->w[i];

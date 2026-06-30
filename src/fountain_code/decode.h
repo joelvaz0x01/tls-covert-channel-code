@@ -9,15 +9,17 @@
 #include "utils.h"
 
 /**
- * Decoder: solve the decoder by back-substitution.
+ * Solves the fountain-code system by back-substitution.
  *
- * This function reduces each pivot row so that it has exactly one
- * bit set (at its own pivot index), then copies the decoded blocks out.
+ * Reduces each pivot row so that it contains exactly one set bit
+ * (at its own pivot index), then copies the decoded source blocks
+ * into the caller-supplied buffer.
  *
- * Scans i from n-1 down to 0, reducing each pivot row as it goes.
+ * Scans pivot indices from n-1 down to 0 so that higher-index
+ * pivots are eliminated from lower-index rows.
  *
- * @param dec Pointer to the decoder structure.
- * @param out_blocks Pointer to the output buffer where decoded blocks will be copied.
+ * @param dec Pointer to the decoder state.
+ * @param out_blocks Output buffer of n blocks; missing blocks are zeroed.
  */
 void decoder_solve(decoder_t* dec, block_t* out_blocks);
 
