@@ -2,6 +2,8 @@ add_executable(fountain_test test_fountain.c)
 
 target_link_libraries(fountain_test PRIVATE
   fountain_code_lib
+  cbprng_lib
+  hash_lib
   rand_lib
   generic_utils
 )

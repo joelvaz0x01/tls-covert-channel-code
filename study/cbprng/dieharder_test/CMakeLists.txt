@@ -12,7 +12,9 @@ foreach(CASE IN LISTS TEST_CASES)
   add_executable(${TARGET_NAME} cbprng_generator.c)
 
   target_link_libraries(${TARGET_NAME} PRIVATE
+    fountain_code_lib
     cbprng_lib
+    hash_lib
     rand_lib
     uint128_lib
     generic_utils
