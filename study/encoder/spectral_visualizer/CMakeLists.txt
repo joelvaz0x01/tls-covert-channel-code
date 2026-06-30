@@ -1,5 +1,7 @@
 add_executable(encoder_spectral_visualizer encoder_spectral_visualizer.c)
 
+target_compile_definitions(encoder_spectral_visualizer PRIVATE MAX_BLOCKS=524288)
+
 target_link_libraries(encoder_spectral_visualizer PRIVATE
   spectral_visualizer
   fountain_code_lib
