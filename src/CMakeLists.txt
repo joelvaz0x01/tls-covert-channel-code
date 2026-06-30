@@ -29,6 +29,8 @@ target_link_libraries(tls_decoder PRIVATE
 add_executable(demo demo.c)
 target_link_libraries(demo PRIVATE
   fountain_code_lib
+  cbprng_lib
+  hash_lib
   rand_lib
   generic_utils
 )
