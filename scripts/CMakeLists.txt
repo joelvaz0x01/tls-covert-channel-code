@@ -6,6 +6,7 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
   return()
 endif()
 
+add_subdirectory(apache_patch)
 add_subdirectory(openssl_mod_hello_msg)
 add_subdirectory(openssl_offset_finder)
 add_subdirectory(toy_examples)

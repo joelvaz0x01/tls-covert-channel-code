@@ -1,0 +1,10 @@
+configure_file(
+  run_gdb.sh
+  ${CMAKE_SOURCE_DIR}/bin/scripts/run_gdb.sh
+  COPYONLY
+)
+
+file(CHMOD
+  ${CMAKE_SOURCE_DIR}/bin/scripts/run_gdb.sh
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
