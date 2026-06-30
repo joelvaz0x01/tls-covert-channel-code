@@ -1,1 +1,2 @@
+add_subdirectory(apache_patch_hello)
 add_subdirectory(function_patch)
