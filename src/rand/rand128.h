@@ -23,7 +23,7 @@
 void srand128(uint128_t seed);
 
 /**
- * Returns the next pseudo-random value as a 64-bit integer.
+ * Returns the next pseudo-random 64-bit integer.
  *
  * Internally advances a 128-bit LCG state; the upper 64 bits of the
  * 128-bit state are returned (proven to pass BigCrush).
@@ -35,12 +35,14 @@ void srand128(uint128_t seed);
 uint64_t rand128(void);
 
 /**
- * Returns a random uint64_t between min and max, inclusive.
+ * Returns a random uint64_t in the inclusive range [min, max].
  *
- * @param min The minimum value.
- * @param max The maximum value.
+ * @param min Minimum value.
+ * @param max Maximum value.
  * @return A pseudo-random value in [min, max].
  */
-uint64_t rand128_between(uint64_t min, uint64_t max);
+static inline uint64_t rand128_between(uint64_t min, uint64_t max) {
+  return min + rand128() % (max - min + 1);
+}
 
 #endif /* RAND_RAND128_H */

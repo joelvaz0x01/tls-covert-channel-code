@@ -28,12 +28,14 @@ void srand64(uint64_t seed);
 uint64_t rand64(void);
 
 /**
- * Returns a random uint64_t between min and max, inclusive.
+ * Returns a random uint64_t in the inclusive range [min, max].
  *
- * @param min The minimum value.
- * @param max The maximum value.
+ * @param min Minimum value.
+ * @param max Maximum value.
  * @return A pseudo-random value in [min, max].
  */
-uint64_t rand64_between(uint64_t min, uint64_t max);
+static inline uint64_t rand64_between(uint64_t min, uint64_t max) {
+  return min + rand64() % (max - min + 1);
+}
 
 #endif /* RAND_RAND64_H */

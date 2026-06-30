@@ -3,7 +3,6 @@
  * Licensed under the Apache License 2.0
  *
  * Pure 128-bit LCG implementation.
- *
  * Partially adapted from glibc.
  */
 
@@ -35,8 +34,4 @@ uint64_t rand128(void) {
 
   state = lcg128(state, LCG_MUL, LCG_ADD);
   return U128_HI(state); /* return upper 64 bits */
-}
-
-uint64_t rand128_between(uint64_t min, uint64_t max) {
-  return min + rand128() % (max - min + 1);
 }

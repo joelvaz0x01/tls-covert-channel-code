@@ -3,7 +3,6 @@
  * Licensed under the Apache License 2.0
  *
  * 64-bit API wrapping a 128-bit LCG.
- *
  * Partially adapted from glibc.
  */
 
@@ -33,8 +32,4 @@ uint64_t rand64(void) {
 
   state = lcg128(state, LCG_MUL, LCG_ADD);
   return U128_HI(state); /* return upper 64 bits */
-}
-
-uint64_t rand64_between(uint64_t min, uint64_t max) {
-  return min + rand64() % (max - min + 1);
 }

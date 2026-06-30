@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <time.h>
 
+#include <uint128/uint128.h>
+
 #include "rand128.h"
 #include "rand64.h"
 #include "time.h"
@@ -20,7 +22,7 @@ void seed128_time(void) {
   uint64_t t = (uint64_t)(uint32_t)time(NULL);
   uint64_t c = (uint64_t)(uint32_t)clock();
 
-  uint32_t s = U128(fmix64(t | (c << 32)), fmix64(c | (t << 32)));
+  uint128_t s = U128(fmix64(t | (c << 32)), fmix64(c | (t << 32)));
 
   srand128(s);
 }
