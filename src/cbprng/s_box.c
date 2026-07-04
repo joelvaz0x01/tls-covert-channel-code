@@ -23,7 +23,7 @@ static inline bool completeness_test(int n, const permutation_t* a) {
   for (int bit_mask_out = 1; bit_mask_out < n; bit_mask_out <<= 1) {
     for (int bit_mask_in = 1; bit_mask_in < n; bit_mask_in <<= 1) {
       int idx;
-      for (idx = 0; idx < n && ((a[idx] & bit_mask_out) == 0) == ((a[idx ^ bit_mask_in] & bit_mask_out) == 0); idx++);
+      for (idx = 0; idx < n && (0 == (a[idx] & bit_mask_out)) == (0 == (a[idx ^ bit_mask_in] & bit_mask_out)); idx++);
       if (idx == n) return false;
     }
   }

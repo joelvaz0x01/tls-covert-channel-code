@@ -70,6 +70,8 @@ mask_t generate_cbprng_generic(permutation_t* S, permutation_t* P, mask_t counte
  * @param counter_value Input counter value.
  * @return The generated pseudo-random number.
  */
-mask_t generate_cbprng(generator_t* g, mask_t counter_value);
+static inline mask_t generate_cbprng(generator_t* g, mask_t counter_value) {
+  return generate_cbprng_generic((permutation_t*)g->S, (permutation_t*)g->P, counter_value, CBPRNG_BITS, N_LAYERS, S_BOX_BITS);
+}
 
 #endif /* CBPRNG_H */

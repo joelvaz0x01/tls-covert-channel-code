@@ -85,7 +85,3 @@ mask_t generate_cbprng_generic(permutation_t* S, permutation_t* P, mask_t counte
   }
   return state;
 }
-
-mask_t generate_cbprng(generator_t* g, mask_t counter_value) {
-  return generate_cbprng_generic((permutation_t*)g->S, (permutation_t*)g->P, counter_value, CBPRNG_BITS, N_LAYERS, S_BOX_BITS);
-}
