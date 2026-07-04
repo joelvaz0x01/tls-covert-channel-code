@@ -15,6 +15,8 @@
 
 #include "FOUNTAIN_bytes_ex.h"
 
+#define RAND_LEN 32
+
 int main(void) {
   int fd = open("./data.bin", O_RDONLY);
   if (fd < 0) {
@@ -24,29 +26,30 @@ int main(void) {
 
   struct stat st;
   fstat(fd, &st);
-  size_t file_size = st.st_size;
+  size_t data_size = st.st_size;
 
-  unsigned char* mem = malloc(8 + 4096);
-  if (!mem) {
+  unsigned char* mem = malloc(16 + data_size);
+  if (NULL == mem) {
     perror("malloc");
     return 1;
   }
-  memset(mem, 0, 8 + 4096);
+  memset(mem, 0, 16 + data_size);
+  *(unsigned long long*)mem = data_size;
 
-  ssize_t n = read(fd, mem + 8, file_size < 4088 ? file_size : 4088);
+  ssize_t n = read(fd, mem + 16, data_size);
   close(fd);
-  if (n <= 0 && file_size > 0) {
+  if (n <= 0 && data_size > 0) {
     perror("read");
     return 1;
   }
 
   shm_base = mem;
 
-  unsigned char buf[32];
+  unsigned char buf[RAND_LEN];
   while (1) {
-    memset(buf, 0, 32);
-    if (1 == FOUNTAIN_bytes_ex(NULL, buf, 32, 0)) {
-      for (int i = 0; i < 32; i++)
+    memset(buf, 0, RAND_LEN);
+    if (1 == FOUNTAIN_bytes_ex(NULL, buf, RAND_LEN, 0)) {
+      for (int i = 0; i < RAND_LEN; i++)
         printf("%02x", buf[i]);
       printf("\n");
     }

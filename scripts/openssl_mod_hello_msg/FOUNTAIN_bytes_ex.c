@@ -13,12 +13,17 @@ unsigned char* volatile shm_base;
 
 int FOUNTAIN_bytes_ex(OSSL_LIB_CTX* ctx, unsigned char* buf, size_t num, unsigned int strength) {
   unsigned char* base = shm_base;
-  if (!base)
+  if (NULL == base)
     return RAND_bytes_ex(ctx, buf, num, strength);
 
-  volatile unsigned long long* cnt = (volatile unsigned long long*)base;
-  unsigned char* dat = base + 8;
-  unsigned long long data_size = 4096;
+  /* data size (offset 0) */
+  unsigned long long data_size = *(volatile unsigned long long*)base;
+
+  /* file cursor (offset 8) */
+  volatile unsigned long long* cnt = (volatile unsigned long long*)(base + 8);
+
+  /* data (offset 16) */
+  unsigned char* dat = base + 16;
 
   unsigned long long pos = __atomic_fetch_add(cnt, (unsigned long long)num, __ATOMIC_SEQ_CST);
   if (pos > data_size - (unsigned long long)num) {
@@ -26,7 +31,9 @@ int FOUNTAIN_bytes_ex(OSSL_LIB_CTX* ctx, unsigned char* buf, size_t num, unsigne
     return RAND_bytes_ex(ctx, buf, num, strength);
   }
 
+  /* copy 'num' bytes from 'dat' to 'buf' */
   for (unsigned long long i = 0; i < (unsigned long long)num; i++)
     buf[i] = dat[pos + i];
+
   return 1;
 }
