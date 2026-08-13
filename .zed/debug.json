@@ -1,0 +1,37 @@
+[
+  {
+    "label": "Debug demo",
+    "build": {
+      "command": "cmake",
+      "args": ["--build", "build", "--target", "demo"],
+      "cwd": "$ZED_WORKTREE_ROOT"
+    },
+    "program": "$ZED_WORKTREE_ROOT/build/bin/demo",
+    "request": "launch",
+    "adapter": "GDB"
+  },
+  {
+    "label": "Debug tls_encoder",
+    "build": {
+      "command": "cmake",
+      "args": ["--build", "build", "--target", "tls_encoder"],
+      "cwd": "$ZED_WORKTREE_ROOT"
+    },
+    "program": "$ZED_WORKTREE_ROOT/build/bin/tls_encoder",
+    "args": ["input.txt", "encoded.bin"],
+    "request": "launch",
+    "adapter": "GDB"
+  },
+  {
+    "label": "Debug tls_decoder",
+    "build": {
+      "command": "cmake",
+      "args": ["--build", "build", "--target", "tls_decoder"],
+      "cwd": "$ZED_WORKTREE_ROOT"
+    },
+    "program": "$ZED_WORKTREE_ROOT/build/bin/tls_decoder",
+    "args": ["encoded.bin", "reconstructed.txt"],
+    "request": "launch",
+    "adapter": "GDB"
+  }
+]

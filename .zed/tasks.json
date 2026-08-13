@@ -1,0 +1,28 @@
+[
+  {
+    "label": "Build (Debug)",
+    "command": "cmake --build build",
+    "args": [],
+    "tags": ["build"],
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "Run demo",
+    "command": "./bin/demo",
+    "args": [],
+    "use_new_terminal": false
+  },
+  {
+    "label": "Run tls_encoder",
+    "command": "./bin/tls_encoder",
+    "args": ["input.txt", "encoded.bin"],
+    "use_new_terminal": false
+  },
+  {
+    "label": "Run tls_decoder",
+    "command": "./bin/tls_decoder",
+    "args": ["encoded.bin", "reconstructed.txt"],
+    "use_new_terminal": false
+  }
+]

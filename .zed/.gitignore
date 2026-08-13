@@ -1,0 +1,8 @@
+# ignore all by default
+*
+
+# share only project-specific configs
+!.gitignore
+!settings.json
+!tasks.json
+!debug.json
