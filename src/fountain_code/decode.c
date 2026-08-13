@@ -26,7 +26,7 @@ void decoder_solve(decoder_t* dec, block_t* out_blocks) {
     }
   }
 
-  if (out_blocks != NULL) {
+  if (NULL != out_blocks) {
     for (uint64_t i = 0; i < n; i++) {
       if (dec->pivot_present[i]) {
         out_blocks[i] = dec->pivot_data[i];

@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
     g_scratch_pkt->id = packets_seen++;
     g_scratch_pkt->data = rec.enc_fc;
 
-    decoder_feed(dec, g_scratch_pkt);
+    decoder_feed(dec, g_scratch_pkt); /* should not be here */
     fprintf(stderr, "[*] decoding: %lu/%lu\r", n - dec->remaining, n);
   }
   fprintf(stderr, "\n");
