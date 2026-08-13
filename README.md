@@ -7,7 +7,7 @@ MSc thesis developed at [UA - Portugal](https://www.ua.pt/) for the Cybersecurit
 >
 > This work was deliberately not fully developed to prevent malicious use in a real-world scenario but contains enough information to demonstrate a real-world attack.
 >
-> All tests were performed under a controlled environment; no real server were involved.
+> All tests were performed under a controlled environment; no real servers were involved.
 
 ## Abstract
 
