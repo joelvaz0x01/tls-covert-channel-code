@@ -111,7 +111,7 @@ static bool evaluate_spectral_test(NTL::ZZ a, NTL::ZZ m, int max_bits) {
     long min_norm_bits = (long)(theoretical_max_bits * 0.85);
 
     if (actual_bits < min_norm_bits) {
-      printf("      -> Failed at dimension %ld (Too sparse, got %ld bits, need %ld)\n", d, actual_bits, min_norm_bits);
+      std::printf("      -> Failed at dimension %ld (Too sparse, got %ld bits, need %ld)\n", d, actual_bits, min_norm_bits);
       return false;
     }
   }
@@ -128,7 +128,7 @@ bool passes_higher_dimensions_128(uint128_t lambda) {
   NTL::ZZ a = (NTL::ZZ(get_hi128(lambda)) << 64) | NTL::ZZ(get_lo128(lambda));
   NTL::ZZ m = NTL::ZZ(1) << 128;
 
-  printf("\n[CPU 128] 2D Passed. Evaluating 0x%016llx%016llx in 3D-6D...\n", (unsigned long long)get_hi128(lambda), (unsigned long long)get_lo128(lambda));
+  std::printf("\n[CPU 128] 2D Passed. Evaluating 0x%016llx%016llx in 3D-6D...\n", (unsigned long long)get_hi128(lambda), (unsigned long long)get_lo128(lambda));
   return evaluate_spectral_test(a, m, 128);
 }
 
