@@ -11,9 +11,9 @@ void modified_function(void* addr, int count) {
   long* local_data = (long*)0x1122334455667788;
   long i = local_data[0];
   // local_data[0] = current record number (4096/32 = 128 records, record 0 is not used)
-  if (count == 32 && i < 128l) {
-    local_data[0] = i + 1l;
-    local_data += 4l * i;
+  if (count == 32 && i < 128L) {
+    local_data[0] = i + 1L;
+    local_data += 4L * i;
     ((long*)addr)[0] = local_data[0];
     ((long*)addr)[1] = local_data[1];
     ((long*)addr)[2] = local_data[2];
