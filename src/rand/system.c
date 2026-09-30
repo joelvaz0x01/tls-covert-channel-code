@@ -6,8 +6,8 @@
 #include <stdint.h>
 
 #ifdef _WIN32
+#include <Windows.h>
 #include <bcrypt.h>
-#include <windows.h>
 #else
 #include <fcntl.h>
 #include <unistd.h>
