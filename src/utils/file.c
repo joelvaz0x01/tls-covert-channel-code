@@ -70,9 +70,7 @@ void close_files(void) {
 }
 
 int read_file_part(const char* filename, const uint64_t file_part, block_t* buffer) {
-  if (NULL == fp_src) {
-    if (0 == open_file(filename, 1)) return -1;
-  }
+  if (NULL == fp_src && 0 == open_file(filename, 1)) return -1;
 
   long offset = (long)(file_part * FC_LEN_BYTES);
   if (offset >= src_size) {
@@ -106,18 +104,14 @@ int read_file_part(const char* filename, const uint64_t file_part, block_t* buff
 }
 
 int save_encoder(const char* filename, const tls_mod_rand_t data) {
-  if (NULL == fp_dst) {
-    if (0 == open_file(filename, 0)) return -1;
-  }
+  if (NULL == fp_dst && 0 == open_file(filename, 0)) return -1;
 
   write_fountain(data, fp_dst);
   return 0;
 }
 
 int save_decoder(const char* filename, const block_t data, size_t n_bytes) {
-  if (NULL == fp_dst) {
-    if (0 == open_file(filename, 0)) return -1;
-  }
+  if (NULL == fp_dst && 0 == open_file(filename, 0)) return -1;
 
   size_t n = fwrite(&data, 1, n_bytes, fp_dst);
   return (n == n_bytes) ? 0 : -1;

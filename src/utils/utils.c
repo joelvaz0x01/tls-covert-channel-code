@@ -106,9 +106,7 @@ uint64_t construct_k(const uint64_t seed, const uint64_t m, const uint64_t n, co
   for (uint64_t i = 0; i < k; i++) {
     vec_set(dec->scratch_sel, k_list[i]);
 
-    if (NULL != src_file)
-      if (-1 == read_file_part(src_file, k_list[i], &buffer[i]))
-        return 0;
+    if (NULL != src_file && -1 == read_file_part(src_file, k_list[i], &buffer[i])) return 0;
   }
 
   return k;
