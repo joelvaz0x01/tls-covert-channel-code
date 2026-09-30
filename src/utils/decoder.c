@@ -28,7 +28,7 @@ size_t bytes_to_write(uint64_t file_part, uint64_t n) {
     const uint8_t* data = (uint8_t*)&dec->pivot_data[file_part];
     while (bytes_to_write > 1 && data[bytes_to_write - 1] == 0)
       bytes_to_write--;
-  };
+  }
 
   return bytes_to_write;
 }
