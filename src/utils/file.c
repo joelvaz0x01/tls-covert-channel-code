@@ -69,7 +69,7 @@ void close_files(void) {
   }
 }
 
-int read_file_part(const char* filename, const uint64_t file_part, block_t* buffer) {
+int read_file_part(const char* filename, const uint64_t file_part, block_t* input_buffer) {
   if (NULL == fp_src && 0 == open_file(filename, 1)) return -1;
 
   long offset = (long)(file_part * FC_LEN_BYTES);
@@ -88,9 +88,9 @@ int read_file_part(const char* filename, const uint64_t file_part, block_t* buff
     bytes_to_read = (size_t)(src_size - offset);
 
 #ifdef _WIN32
-  size_t n = fread_s(buffer, sizeof(block_t), 1, bytes_to_read, fp_src);
+  size_t n = fread_s(input_buffer, sizeof(block_t), 1, bytes_to_read, fp_src);
 #else
-  size_t n = fread(buffer, 1, bytes_to_read, fp_src);
+  size_t n = fread(input_buffer, 1, bytes_to_read, fp_src);
 #endif
   if (n != bytes_to_read) {
     close_files();
@@ -98,7 +98,7 @@ int read_file_part(const char* filename, const uint64_t file_part, block_t* buff
   }
 
   if (n < FC_LEN_BYTES)
-    memset((uint8_t*)buffer + n, 0, FC_LEN_BYTES - n);
+    memset((uint8_t*)input_buffer + n, 0, FC_LEN_BYTES - n);
 
   return 0;
 }

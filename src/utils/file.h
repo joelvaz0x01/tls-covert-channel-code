@@ -33,10 +33,10 @@ void close_files(void);
  *
  * @param filename The name of the file to read.
  * @param file_part The part of the file to read (0-based index).
- * @param buffer The buffer to read into.
+ * @param input_buffer The buffer to read into.
  * @return 0 on success, -1 on error.
  */
-int read_file_part(const char* filename, const uint64_t file_part, block_t* buffer);
+int read_file_part(const char* filename, const uint64_t file_part, block_t* input_buffer);
 
 /**
  * Returns the size of the source file in bytes.
