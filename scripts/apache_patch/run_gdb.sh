@@ -94,7 +94,7 @@ set print thread-events off
 set \$code = (unsigned char *) mmap(0, \$filesize, 7, 0x22, -1, 0)
 restore $mod_code binary \$code 0 \$filesize
 
-# Resolving RAND_bytes_ex function address
+# Get RAND_bytes_ex function address
 set \$real_rand = (void*) RAND_bytes_ex
 
 # Allocating data storage
