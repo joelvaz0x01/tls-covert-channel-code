@@ -13,7 +13,7 @@
 #include "spectral_test.h"
 #include "uint128_t.h"
 
-#if LCG_UINT128_HAS_NATIVE
+#if defined(__SIZEOF_INT128__)
 
 /**
  * Extracts the low 64 bits of a 128-bit unsigned integer.

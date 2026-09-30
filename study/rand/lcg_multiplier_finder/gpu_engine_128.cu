@@ -13,7 +13,7 @@
 #include "spectral_test.h"
 #include "uint128_ops.cuh"
 
-#if LCG_UINT128_HAS_NATIVE
+#if defined(__SIZEOF_INT128__)
 
 #include <stdint.h>
 
@@ -89,7 +89,7 @@ static inline uint128_t make128(uint64_t hi, uint64_t lo) {
 
 #endif
 
-#if LCG_UINT128_HAS_NATIVE
+#if defined(__SIZEOF_INT128__)
 
 /**
  * Divides a 128-bit unsigned integer by 10 and returns the remainder.

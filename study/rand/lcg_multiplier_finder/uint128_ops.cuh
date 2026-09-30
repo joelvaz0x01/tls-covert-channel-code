@@ -8,7 +8,7 @@
 
 #include "uint128_t.h"
 
-#if LCG_UINT128_HAS_NATIVE
+#if defined(__SIZEOF_INT128__)
 
 /**
  * Adds two 128-bit unsigned integers.
