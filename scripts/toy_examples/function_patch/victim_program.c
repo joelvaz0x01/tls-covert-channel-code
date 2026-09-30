@@ -22,10 +22,10 @@ void original_function(void* addr, int count) {
     "nop\n\t"
     "nop"
   );
-  static unsigned long x = 127326573ul;
+  static unsigned long x = 127326573UL;
   for (char* p = (char*)addr; count > 0; count--) {
     *p++ = (char)x;
-    x = x * 218372736138261ul + 17ul;
+    x = x * 218372736138261UL + 17UL;
   }
 }
 
