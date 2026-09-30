@@ -8,7 +8,7 @@
 #include <NTL/mat_ZZ.h>
 
 #include <array>
-#include <cstdio>
+#include <print>
 
 #include "spectral_test.h"
 #include "uint128_t.h"
@@ -113,7 +113,7 @@ static bool evaluate_spectral_test(NTL::ZZ a, NTL::ZZ m, int max_bits) {
     auto min_norm_bits = (long)(theoretical_max_bits * 0.85);
 
     if (actual_bits < min_norm_bits) {
-      std::printf("      -> Failed at dimension %ld (Too sparse, got %ld bits, need %ld)\n", d, actual_bits, min_norm_bits);
+      std::print("      -> Failed at dimension %ld (Too sparse, got %ld bits, need %ld)\n", d, actual_bits, min_norm_bits);
       return false;
     }
   }
@@ -130,7 +130,7 @@ bool passes_higher_dimensions_128(uint128_t lambda) {
   NTL::ZZ a = (NTL::ZZ(get_hi128(lambda)) << 64) | NTL::ZZ(get_lo128(lambda));
   NTL::ZZ m = NTL::ZZ(1) << 128;
 
-  std::printf("\n[CPU 128] 2D Passed. Evaluating 0x%016llx%016llx in 3D-6D...\n", (unsigned long long)get_hi128(lambda), (unsigned long long)get_lo128(lambda));
+  std::print("\n[CPU 128] 2D Passed. Evaluating 0x%016llx%016llx in 3D-6D...\n", (unsigned long long)get_hi128(lambda), (unsigned long long)get_lo128(lambda));
   return evaluate_spectral_test(a, m, 128);
 }
 
@@ -144,6 +144,6 @@ bool passes_higher_dimensions_64(unsigned long long lambda) {
   NTL::ZZ a = NTL::ZZ(lambda);
   NTL::ZZ m = NTL::ZZ(1) << 64;
 
-  printf("\n[CPU 64] 2D Passed. Evaluating 0x%016llx in 3D-6D...\n", lambda);
+  std::print("\n[CPU 64] 2D Passed. Evaluating 0x%016llx in 3D-6D...\n", lambda);
   return evaluate_spectral_test(a, m, 64);
 }
