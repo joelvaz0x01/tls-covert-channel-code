@@ -17,7 +17,7 @@
  * @param field The field to check.
  * @return true if the data is valid, false otherwise.
  */
-bool is_data_valid(tls_mod_rand_t* field);
+bool is_data_valid(const tls_mod_rand_t* field);
 
 /**
  * Calculates the file ID from the field.
@@ -26,7 +26,7 @@ bool is_data_valid(tls_mod_rand_t* field);
  * @param id The calculated file ID.
  * @return true if the file ID was calculated successfully, false otherwise.
  */
-bool calculate_file_id(tls_mod_rand_t* field, uint64_t id);
+bool calculate_file_id(const tls_mod_rand_t* field, uint64_t id);
 
 /**
  * Returns the number of bytes to write for a given file part.

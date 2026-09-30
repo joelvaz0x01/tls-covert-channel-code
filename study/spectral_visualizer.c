@@ -8,7 +8,7 @@
 
 #include "spectral_visualizer.h"
 
-void write_dat_2d(const char* path, double* x, size_t n) {
+void write_dat_2d(const char* path, const double* x, size_t n) {
   FILE* f = fopen(path, "w");
   if (!f) {
     perror(path);
@@ -20,7 +20,7 @@ void write_dat_2d(const char* path, double* x, size_t n) {
   fclose(f);
 }
 
-void write_dat_3d(const char* path, double* x, size_t n) {
+void write_dat_3d(const char* path, const double* x, size_t n) {
   FILE* f = fopen(path, "w");
   if (!f) {
     perror(path);

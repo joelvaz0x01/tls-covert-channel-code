@@ -12,7 +12,7 @@
 
 #include "cbprng.h"
 
-static bool avalanche_analysis(generator_t* g) {
+static bool avalanche_analysis(const generator_t* g) {
   mask_t all_bits_mask = (CBPRNG_BITS == 64) ? ~(mask_t)0 : ((mask_t)1 << CBPRNG_BITS) - 1;
 
   /* least significant S_BOX_BITS set to one */
@@ -61,7 +61,7 @@ void pseudo_random_generator(generator_t* g) {
   } while (!avalanche_analysis(g));
 }
 
-mask_t generate_cbprng_generic(permutation_t* S, permutation_t* P, mask_t counter_value, int bits, int layers, int sbox_bits) {
+mask_t generate_cbprng_generic(const permutation_t* S, const permutation_t* P, mask_t counter_value, int bits, int layers, int sbox_bits) {
   mask_t s_box_mask = ((mask_t)1 << sbox_bits) - 1;
   mask_t state = counter_value;
   int n_sboxes = bits / sbox_bits;

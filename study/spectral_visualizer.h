@@ -16,7 +16,7 @@
  *
  * Writes n-1 rows: each row is "x[i]\tx[i+1]".
  */
-void write_dat_2d(const char* path, double* x, size_t n);
+void write_dat_2d(const char* path, const double* x, size_t n);
 
 /**
  * Write 3D consecutive-triple spectral test data.
@@ -26,7 +26,7 @@ void write_dat_2d(const char* path, double* x, size_t n);
  *
  * Writes n-2 rows: each row is "x[i]\tx[i+1]\tx[i+2]".
  */
-void write_dat_3d(const char* path, double* x, size_t n);
+void write_dat_3d(const char* path, const double* x, size_t n);
 
 /**
  * Generate an Octave/MATLAB script with 2D and 3D scatter plots side by side.

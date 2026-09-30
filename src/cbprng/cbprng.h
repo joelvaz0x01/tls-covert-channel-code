@@ -61,7 +61,7 @@ void pseudo_random_generator(generator_t* g);
  * @param sbox_bits Number of input/output bits per S-box.
  * @return The generated pseudo-random number.
  */
-mask_t generate_cbprng_generic(permutation_t* S, permutation_t* P, mask_t counter_value, int bits, int layers, int sbox_bits);
+mask_t generate_cbprng_generic(const permutation_t* S, const permutation_t* P, mask_t counter_value, int bits, int layers, int sbox_bits);
 
 /**
  * Evaluates the default CBPRNG for a given counter value.
