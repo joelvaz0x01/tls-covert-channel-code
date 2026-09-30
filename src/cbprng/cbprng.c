@@ -12,6 +12,22 @@
 
 #include "cbprng.h"
 
+static void avalanche_analysis_s_box(mask_t affected_bits, mask_t* new_affected_bits, mask_t s_box_mask) {
+  for (int s_box_idx = 0; s_box_idx < CBPRNG_BITS / S_BOX_BITS; s_box_idx++)
+    /* if any input bit of the S_box is already affected, affect all output bits */
+    if (0 != ((affected_bits >> (s_box_idx * S_BOX_BITS)) & s_box_mask))
+      *new_affected_bits |= s_box_mask << (s_box_idx * S_BOX_BITS);
+}
+
+static void avalanche_analysis_p_box(int layer, mask_t* affected_bits, mask_t* new_affected_bits, const generator_t* g) {
+  if (layer < N_LAYERS - 1) {
+    *affected_bits = 0;
+    for (int idx = 0; idx < CBPRNG_BITS; idx++) /* map bit idx to bit a[idx] */
+      *affected_bits |= ((*new_affected_bits >> idx) & (mask_t)1) << g->P[layer].a[idx];
+  } else
+    *affected_bits = *new_affected_bits;
+}
+
 static bool avalanche_analysis(const generator_t* g) {
   mask_t all_bits_mask = (CBPRNG_BITS == 64) ? ~(mask_t)0 : ((mask_t)1 << CBPRNG_BITS) - 1;
 
@@ -23,18 +39,10 @@ static bool avalanche_analysis(const generator_t* g) {
       mask_t new_affected_bits = 0;
 
       /* test S-boxes layer */
-      for (int s_box_idx = 0; s_box_idx < CBPRNG_BITS / S_BOX_BITS; s_box_idx++)
-        /* if any input bit of the S_box is already affected, affect all output bits */
-        if (0UL != ((affected_bits >> (s_box_idx * S_BOX_BITS)) & s_box_mask))
-          new_affected_bits |= s_box_mask << (s_box_idx * S_BOX_BITS);
+      avalanche_analysis_s_box(affected_bits, &new_affected_bits, s_box_mask);
 
       /* test P-box layer */
-      if (layer < N_LAYERS - 1) {
-        affected_bits = 0;
-        for (int idx = 0; idx < CBPRNG_BITS; idx++) /* map bit idx to bit a[idx] */
-          affected_bits |= ((new_affected_bits >> idx) & (mask_t)1) << g->P[layer].a[idx];
-      } else
-        affected_bits = new_affected_bits;
+      avalanche_analysis_p_box(layer, &affected_bits, &new_affected_bits, g);
     }
     if (affected_bits != all_bits_mask) return false;
   }
