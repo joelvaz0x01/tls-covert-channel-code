@@ -110,7 +110,19 @@ static const uint32_t k[64] = {
  * @param data The data block to hash.
  */
 static void sha256_transform(sha256_ctx_t* ctx, const uint8_t data[]) {
-  uint32_t a, b, c, d, e, f, g, h, i, j, t1, t2, m[64];
+  uint32_t a;
+  uint32_t b;
+  uint32_t c;
+  uint32_t d;
+  uint32_t e;
+  uint32_t f;
+  uint32_t g;
+  uint32_t h;
+  uint32_t i;
+  uint32_t j;
+  uint32_t t1;
+  uint32_t t2;
+  uint32_t m[64];
 
   for (i = 0, j = 0; i < 16; ++i, j += 4)
     m[i] = (data[j] << 24) | (data[j + 1] << 16) | (data[j + 2] << 8) | (data[j + 3]);

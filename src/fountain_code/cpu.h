@@ -26,7 +26,10 @@
  */
 static inline bool cpu_has_sse4_2(void) {
 #if defined(__GNUC__) || defined(__clang__)
-  unsigned int eax, ebx, ecx, edx;
+  unsigned int eax;
+  unsigned int ebx;
+  unsigned int ecx;
+  unsigned int edx;
   if (__get_cpuid(1, &eax, &ebx, &ecx, &edx))
     return (ecx >> 20) & 1;
   return false;
