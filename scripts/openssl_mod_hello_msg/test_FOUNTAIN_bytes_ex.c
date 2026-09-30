@@ -40,6 +40,8 @@ int main(void) {
   close(fd);
   if (n <= 0 && data_size > 0) {
     perror("read");
+    free(mem);
+    mem = NULL;
     return 1;
   }
 
