@@ -54,7 +54,9 @@ int main(int argc, char* argv[]) {
   }
 
   size_t collected = 0;
-  for (uint64_t id = 0; collected < n_samples; id++) {
+  uint64_t id = 0;
+
+  while (collected < n_samples) {
     while (0 != dec->remaining && collected < n_samples) {
       uint64_t seed = generate_cbprng(&cbprng, counter_value);
       if (0 == construct_k(seed, m, n, n_words, filename)) {
@@ -72,6 +74,7 @@ int main(int argc, char* argv[]) {
       counter_value++;
     }
     n_words = reset_program(n);
+    id++;
   }
 
   close_files();
