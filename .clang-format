@@ -16,24 +16,26 @@ IncludeBlocks: Regroup
 IncludeIsMainRegex: "$."
 IncludeCategories:
   - Regex: "^<cbprng/"
-    Priority: 3
-  - Regex: "^<fountain_code/"
     Priority: 4
-  - Regex: "^<hash/"
+  - Regex: "^<fountain_code/"
     Priority: 5
-  - Regex: "^<rand/"
+  - Regex: "^<hash/"
     Priority: 6
-  - Regex: "^<uint128/"
+  - Regex: "^<rand/"
     Priority: 7
-  - Regex: "^<utils/"
+  - Regex: "^<uint128/"
     Priority: 8
-  - Regex: "^<openssl_rand_mod/"
+  - Regex: "^<utils/"
     Priority: 9
-  - Regex: "^<study/"
+  - Regex: "^<openssl_rand_mod/"
     Priority: 10
-  - Regex: "^<openssl/"
-    Priority: 1
-  - Regex: "^<.*"
-    Priority: 2
-  - Regex: '^".*'
+  - Regex: "^<study/"
     Priority: 11
+  - Regex: "^<NTL/"
+    Priority: 1
+  - Regex: "^<openssl/"
+    Priority: 2
+  - Regex: "^<.*"
+    Priority: 3
+  - Regex: '^".*'
+    Priority: 12

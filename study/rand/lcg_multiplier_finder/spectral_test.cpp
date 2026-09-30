@@ -6,6 +6,8 @@
 #include <NTL/LLL.h>
 #include <NTL/ZZ.h>
 #include <NTL/mat_ZZ.h>
+
+#include <array>
 #include <cstdio>
 
 #include "spectral_test.h"
@@ -72,7 +74,7 @@ static long early_termination_check(const NTL::vec_ZZ&) {
  * @return true if the spectral test passes, false otherwise.
  */
 static bool evaluate_spectral_test(NTL::ZZ a, NTL::ZZ m, int max_bits) {
-  NTL::ZZ a_powers[6];
+  std::array<NTL::ZZ, 6> a_powers;
   a_powers[0] = NTL::to_ZZ(1);
   for (int i = 1; i < 6; i++) {
     a_powers[i] = (a_powers[i - 1] * a) % m;
