@@ -1,5 +1,9 @@
 # Covert Channel Using the TLS Random Field
 
+[![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=joelvaz0x01_tls-covert-channel-code&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=joelvaz0x01_tls-covert-channel-code)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=joelvaz0x01_tls-covert-channel-code&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=joelvaz0x01_tls-covert-channel-code)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=joelvaz0x01_tls-covert-channel-code&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=joelvaz0x01_tls-covert-channel-code)
+
 MSc thesis developed at [UA - Portugal](https://www.ua.pt/) for the Cybersecurity course.
 
 > [!WARNING]
