@@ -25,7 +25,7 @@ static bool avalanche_analysis(const generator_t* g) {
       /* test S-boxes layer */
       for (int s_box_idx = 0; s_box_idx < CBPRNG_BITS / S_BOX_BITS; s_box_idx++)
         /* if any input bit of the S_box is already affected, affect all output bits */
-        if (0ul != ((affected_bits >> (s_box_idx * S_BOX_BITS)) & s_box_mask))
+        if (0UL != ((affected_bits >> (s_box_idx * S_BOX_BITS)) & s_box_mask))
           new_affected_bits |= s_box_mask << (s_box_idx * S_BOX_BITS);
 
       /* test P-box layer */
