@@ -19,13 +19,13 @@ static void avalanche_analysis_s_box(mask_t affected_bits, mask_t* new_affected_
       *new_affected_bits |= s_box_mask << (s_box_idx * S_BOX_BITS);
 }
 
-static void avalanche_analysis_p_box(int layer, mask_t* affected_bits, mask_t* new_affected_bits, const generator_t* g) {
+static void avalanche_analysis_p_box(int layer, mask_t* affected_bits, mask_t new_affected_bits, const generator_t* g) {
   if (layer < N_LAYERS - 1) {
     *affected_bits = 0;
     for (int idx = 0; idx < CBPRNG_BITS; idx++) /* map bit idx to bit a[idx] */
-      *affected_bits |= ((*new_affected_bits >> idx) & (mask_t)1) << g->P[layer].a[idx];
+      *affected_bits |= ((new_affected_bits >> idx) & (mask_t)1) << g->P[layer].a[idx];
   } else
-    *affected_bits = *new_affected_bits;
+    *affected_bits = new_affected_bits;
 }
 
 static bool avalanche_analysis(const generator_t* g) {
@@ -42,7 +42,7 @@ static bool avalanche_analysis(const generator_t* g) {
       avalanche_analysis_s_box(affected_bits, &new_affected_bits, s_box_mask);
 
       /* test P-box layer */
-      avalanche_analysis_p_box(layer, &affected_bits, &new_affected_bits, g);
+      avalanche_analysis_p_box(layer, &affected_bits, new_affected_bits, g);
     }
     if (affected_bits != all_bits_mask) return false;
   }
