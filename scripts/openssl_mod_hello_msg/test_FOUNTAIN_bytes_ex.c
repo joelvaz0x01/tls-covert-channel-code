@@ -39,9 +39,9 @@ int main(void) {
   ssize_t n = read(fd, mem + 16, data_size);
   close(fd);
   if (n <= 0 && data_size > 0) {
-    perror("read");
     free(mem);
     mem = NULL;
+    perror("read");
     return 1;
   }
 
