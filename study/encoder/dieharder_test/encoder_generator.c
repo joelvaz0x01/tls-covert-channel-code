@@ -50,9 +50,4 @@ int main(int argc, char* argv[]) {
     }
     n_words = reset_program(n);
   }
-
-  close_files();
-  finalize_program();
-
-  return 0;
 }
