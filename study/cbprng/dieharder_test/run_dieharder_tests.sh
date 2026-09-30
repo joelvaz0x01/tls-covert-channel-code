@@ -9,7 +9,7 @@ run_test_and_report() {
   local out_file=$(printf "%02d_%02d" $b $l)
 
   if [[ ! -x "$target" ]]; then
-    echo "Error: Target executable $target not found. Make sure to build the project first."
+    echo "Error: Target executable $target not found. Make sure to build the project first." >&2
     exit 1
   fi
 

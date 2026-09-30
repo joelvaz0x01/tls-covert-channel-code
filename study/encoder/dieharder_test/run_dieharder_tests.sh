@@ -9,7 +9,7 @@ if [[ -z "${file}" ]]; then
 fi
 
 if [[ ! -x "${target}" ]]; then
-  echo "Error: Target executable $target not found. Make sure to build the project first."
+  echo "Error: Target executable $target not found. Make sure to build the project first." >&2
   exit 1
 fi
 
