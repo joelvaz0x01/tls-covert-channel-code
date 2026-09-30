@@ -3,12 +3,12 @@
 target="encoder_dieharder"
 file=$1
 
-if [ -z "${file}" ]; then
+if [[ -z "${file}" ]]; then
   echo "[-] Usage: ./run_dieharder_tests.sh <input>"
   exit 1
 fi
 
-if [ ! -x "${target}" ]; then
+if [[ ! -x "${target}" ]]; then
   echo "Error: Target executable $target not found. Make sure to build the project first."
   exit 1
 fi

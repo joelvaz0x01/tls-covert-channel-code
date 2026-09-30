@@ -8,12 +8,12 @@ run_test_and_report() {
   local target="cbprng_dieharder_${b}_${l}"
   local out_file=$(printf "%02d_%02d" $b $l)
 
-  if [ ! -x "$target" ]; then
+  if [[ ! -x "$target" ]]; then
     echo "Error: Target executable $target not found. Make sure to build the project first."
     exit 1
   fi
 
-  if [ ! -e "${out_file}.1" ]; then
+  if [[ ! -e "${out_file}.1" ]]; then
     echo "--- Running test case: $b, $l ---"
     ./$target | dieharder -D 262143 -a -g 200 1>${out_file}.1 2>${out_file}.2
     chmod 400 ${out_file}.1 ${out_file}.2
