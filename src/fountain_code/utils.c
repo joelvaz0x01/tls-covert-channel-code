@@ -9,6 +9,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <rand/rand128.h>
+
+#include "settings.h"
+#include "utils.h"
+#include "vec_ops.h"
+
 static int cmp_uint64(const void* a, const void* b) {
   uint64_t x = *(const uint64_t*)a;
   uint64_t y = *(const uint64_t*)b;
@@ -16,12 +22,6 @@ static int cmp_uint64(const void* a, const void* b) {
   if (x > y) return 1;
   return 0;
 }
-
-#include <rand/rand128.h>
-
-#include "settings.h"
-#include "utils.h"
-#include "vec_ops.h"
 
 int decoder_init(decoder_t* dec, const uint64_t n) {
   dec->n = n;
