@@ -31,9 +31,9 @@ void original_function(void* addr, int count) {
 
 int main(void) {
   char buffer[32];
-  int j, k;
+  int k;
 
-  for (j = 1;;) {
+  for (int j = 1;;) {
     for (k = 0; k < 1000000000; k++)
       j = 3 * j - 1;
     original_function((void*)buffer, 4);

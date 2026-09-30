@@ -207,7 +207,6 @@ int sha256_update(void* ctx, const void* data, size_t bit_len) {
 int sha256_final(void* ctx, uint8_t* digest) {
   if (NULL == ctx || NULL == digest) return 0;
   sha256_ctx_t* s_ctx = (sha256_ctx_t*)ctx;
-  uint32_t i;
   uint64_t total_bits = s_ctx->bitlen_total;
 
   uint32_t buffer_bit_offset = s_ctx->bitlen_buffer % 8;
@@ -254,7 +253,7 @@ int sha256_final(void* ctx, uint8_t* digest) {
 
   sha256_transform(s_ctx, s_ctx->data);
 
-  for (i = 0; i < 4; ++i) {
+  for (uint32_t i = 0; i < 4; ++i) {
     digest[i] = (s_ctx->state[0] >> (24 - i * 8)) & 0x000000ff;
     digest[i + 4] = (s_ctx->state[1] >> (24 - i * 8)) & 0x000000ff;
     digest[i + 8] = (s_ctx->state[2] >> (24 - i * 8)) & 0x000000ff;
