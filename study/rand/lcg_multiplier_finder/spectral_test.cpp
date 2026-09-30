@@ -110,7 +110,7 @@ static bool evaluate_spectral_test(NTL::ZZ a, NTL::ZZ m, int max_bits) {
     long actual_bits = NTL::NumBits(min_norm);
 
     double theoretical_max_bits = (max_bits * 2.0) / d;
-    long min_norm_bits = (long)(theoretical_max_bits * 0.85);
+    auto min_norm_bits = (long)(theoretical_max_bits * 0.85);
 
     if (actual_bits < min_norm_bits) {
       std::printf("      -> Failed at dimension %ld (Too sparse, got %ld bits, need %ld)\n", d, actual_bits, min_norm_bits);
